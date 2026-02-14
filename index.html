@@ -541,6 +541,60 @@ window.addEventListener("load", updateChannelListDisplay);
 
 </script>
 
+  <script>
+/* ============================
+   SIMPLE PAGE PROTECTION ONLY
+   (NO CHANGE TO YOUR PLAYER)
+   ============================ */
+
+/* PALITAN MO ITO NG DOMAIN MO */
+var ALLOWED_HOST = "onesanmateocable.pages.dev/";
+
+/* fake 404 kapag ibang website binuksan */
+if (location.hostname !== ALLOWED_HOST) {
+  document.open();
+  document.write(`
+<html>
+      <head><title>SAN MATEO CABLE AFFLIATE</title></head>
+      <body style="margin:0;background:#000;color:#fff;
+      display:absulute;align-items:center;justify-content:center;
+      height:100vh;font-family:Arial;text-align: center;">
+     <center>   <P><h1>ENJOY WATCHING</h1></P>
+        <p>PUMILI LAMANG SA DALAWA LIST AFFLIATE TV OR SAN MATEO CABLE</p>
+        <p>PARA LUMABAS ANG MGA CHANNELS</p><br><br><br></center>
+        <img src="https://i.imgur.com/urWAPgv.png"  width="80" height="60">
+        <p><center><h4>     &copy;2025-26 GOLDEN TELEVISION NETWORK | <a href="#">All Rights Reserved</a></h4></center></p>
+      </body>
+    </html>
+
+  `);
+  document.close();
+}
+
+/* disable right click */
+document.addEventListener("contextmenu", function(e){
+  e.preventDefault();
+});
+
+/* block CTRL+U and CTRL+SHIFT+C */
+document.addEventListener("keydown", function(e){
+
+  /* CTRL + U */
+  if (e.ctrlKey && e.key.toLowerCase() === "u") {
+    e.preventDefault();
+    return false;
+  }
+
+  /* CTRL + SHIFT + C */
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+    e.preventDefault();
+    return false;
+  }
+
+});
+</script>
+
+
 
 
 
@@ -736,77 +790,6 @@ src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
 
 
 
-
-
-
-
-
-  
-
-  <script>
-/* ============================
-   SIMPLE PAGE PROTECTION ONLY
-   (NO CHANGE TO YOUR PLAYER)
-   ============================ */
-
-/* PALITAN MO ITO NG DOMAIN MO */
-var ALLOWED_HOST = "onesanmateocable.pages.dev/";
-
-/* fake 404 kapag ibang website binuksan */
-if (location.hostname !== ALLOWED_HOST) {
-  document.open();
-  document.write(`
-<html>
-      <head><title>SAN MATEO CABLE AFFLIATE</title></head>
-      <body style="margin:0;background:#000;color:#fff;
-      display:absulute;align-items:center;justify-content:center;
-      height:100vh;font-family:Arial;text-align: center;">
-     <center>   <P><h1>ENJOY WATCHING</h1></P>
-        <p>PUMILI LAMANG SA DALAWA LIST AFFLIATE TV OR SAN MATEO CABLE</p>
-        <p>PARA LUMABAS ANG MGA CHANNELS</p><br><br><br></center>
-        <img src="https://i.imgur.com/urWAPgv.png"  width="80" height="60">
-        <p><center><h4>     &copy;2025-26 GOLDEN TELEVISION NETWORK | <a href="#">All Rights Reserved</a></h4></center></p>
-      </body>
-    </html>
-
-  `);
-  document.close();
-}
-
-/* disable right click */
-document.addEventListener("contextmenu", function(e){
-  e.preventDefault();
-});
-
-/* block CTRL+U and CTRL+SHIFT+C */
-document.addEventListener("keydown", function(e){
-
-  /* CTRL + U */
-  if (e.ctrlKey && e.key.toLowerCase() === "u") {
-    e.preventDefault();
-    return false;
-  }
-
-  /* CTRL + SHIFT + C */
-  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
-    e.preventDefault();
-    return false;
-  }
-
-});
-</script>
-
-
-
-
-
-
-
-
-
-
-
-
   
 <script disable-devtool-auto
 src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
@@ -814,6 +797,7 @@ src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
 
 </body>
 </html>
+
 
 
 
