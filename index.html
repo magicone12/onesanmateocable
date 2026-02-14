@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.compiled.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+<style>
+body{
+  margin:0;
+  background:#111;
+  color:#fff;
+  font-family:Arial, sans-serif;
+  overflow:none;
+   z-index:1000;
+}
+
+/* PLAYER */
+.playerFixed{
+  position:fixed;
+  top:0;left:0;right:0;
+  background:#000;
+  padding:8px;
+  z-index:1000;
+}
+
+.videoWrap{
+  max-width:1000px;
+  margin:auto;
+  aspect-ratio:16/9;
+  background:#000;
+  border-radius:10px;
+  overflow:hidden;
+  position:relative;
+}
+
+video{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  background:#000;
+}
+
+/* overlay controls */
+.controlsOverlay{
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:flex-end;
+  align-items:flex-start;
+  padding:10px;
+  gap:8px;
+  pointer-events:none;
+  opacity:0;
+  transition:.25s;
+}
+.controlsOverlay.show{opacity:1; pointer-events:auto;}
+
+.ctrlBtn{
+  background:rgba(0,0,0,.6);
+  border:1px solid rgba(255,255,255,.2);
+  color:#fff;
+  padding:6px 10px;
+  border-radius:6px;
+  font-size:12px;
+  cursor:pointer;
+}
+
+/* loading text */
+.loading{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  letter-spacing:.5px;
+  background:rgba(0,0,0,.4);
+  pointer-events:none;
+  opacity:0;
+  transition:.2s;
+}
+
+/* BUTTONS */
+.buttonsFixed{
+  position:fixed;
+  left:0;right:0;
+  max-width:1000px;
+  margin:auto;
+  padding:10px;
+  display:flex;
+  gap:10px;
+  z-index:999;
+}
+
+.buttonsFixed button{
+  flex:1;
+  padding:35px;
+  border:none;
+  border-radius:8px;
+  background:#2b2b2b;
+  color:#fff;
+  cursor:pointer;
+}
+
+/* CHANNEL PANEL */
+.channelPanelFixed{
+  position:fixed;
+  left:0;right:0;
+  max-width:1000px;
+  margin:auto;
+  background:#1e1e1e;
+  border-radius:12px;
+  padding:10px;
+  display:none;
+  z-index:998;
+  max-height:50vh;
+  overflow-y:auto;
+}
+.channelPanelFixed h3{
+  margin:0 0 10px;
+  text-align:center;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  background:#00e1ff;
+  padding:25px 0;
+}
+
+.chName{
+  flex:1;
+  text-align:center;
+  font-weight:500;
+}
+
+
+
+.channel{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:45px;
+  margin-bottom:6px;
+  background:#2b2b2b;
+  border-radius:6px;
+  cursor:pointer;
+}
+.channel:hover{background:#000000;}
+
+.channel img{
+  width:80px;
+  height:40px;
+  border-radius:4px;
+}
+
+.spacer{height:1500px;}
+</style>
+</head>
+
+<body>
+
+<div class="playerFixed" id="playerBox">
+  <div class="videoWrap" id="videoWrap">
+    <video id="video"
+      autoplay
+      muted
+      playsinline
+      poster="https://via.placeholder.com/1280x720?text=Select+a+Channel"></video>
+    <div class="loading" id="loadingTxt">Loading channel…</div>
+    <div class="controlsOverlay" id="controls">
+      <button class="ctrlBtn" id="fsBtn">FULL</button>
+      <button class="ctrlBtn" id="wideBtn">WIDE</button>
+      <button class="ctrlBtn" id="fitBtn">FIT</button>
+    </div>
+  </div>
+</div>
+
+<div class="buttonsFixed" id="buttonsBar">
+  <button onclick="toggleList('main')">AFFLIATE TV</button>
+  <button onclick="toggleList('second')">SAN MATEO CABLE</button>
+</div>
+
+<div class="channelPanelFixed" id="panelMain">
+  <h3>AFFLIATE TV</h3>
+  <div id="mainList"></div>
+</div>
+
+<div class="channelPanelFixed" id="panelSecond">
+  <h3>SAN MATEO CABLE</h3>
+  <div id="secondList"></div>
+</div>
+
+<div class="spacer"></div>
+
+<script>
+shaka.polyfill.installAll();
+
+const video  = document.getElementById("video");
+const loading = document.getElementById("loadingTxt");
+const controls = document.getElementById("controls");
+const fsBtn = document.getElementById("fsBtn");
+const wideBtn = document.getElementById("wideBtn");
+const fitBtn = document.getElementById("fitBtn");
+const wrap = document.getElementById("videoWrap");
+const player = new shaka.Player(video);
+
+let hlsPlayer = null;
+let lastChannel = null;
+let retryTimer = null;
+
+/* CHANNELS */
+const mainChannels = [
+{
+  name:"GOLDEN TV",
+  logo:"https://i.imgur.com/urWAPgv.png",
+  src:"https://live20.bozztv.com/akamaissh101/ssh101/goldtvnet/chunks.m3u8",
+  type:"hls"
+},{
+  name:"SDTV",
+  logo:"https://i.imgur.com/PfJ0jVP.png",
+  src:"https://live20.bozztv.com/giatvplayout7/giatv-210938/tracks-v1a1/mono.ts.m3u8",
+  type:"hls"
+}
+];
+
+const secondChannels = [
+{
+  name:"TV5",
+  logo:"https://i.imgur.com/Ddyfzrn.png",
+  src:"https://qp-pldt-live-bpk-02-prod.akamaized.net/bpk-tv/tv5_hd/default1/index.mpd",
+  type:"mpd",
+  drm:{
+    keyId:"2615129ef2c846a9bbd43a641c7303ef",
+    key:"07c7f996b1734ea288641a68e1cfdc4d"
+  }
+},  {
+    name: "GMA",
+    logo: "https://i.imgur.com/nMSt2j0.png",
+    src: "https://gsattv.akamaized.net/live/media0/gma7/Widevine/gma7.mpd",
+    type: "mpd",
+    drm:{
+      keyId:"2615129ef2c846a9bbd43a641c7303ef",
+      key:"07c7f996b1734ea288641a68e1cfdc4d"
+    }
+  }, {
+    name: "ALL TV",
+    logo: "https://i.imgur.com/wo8vkU8.png",
+    src: "https://kalibonco.qzz.io/001/2/ch00000090990000001179/manifest.mpd?AuthInfo=v87HD9rEhwHiAdYyrP20TsXah2%2FZLFNNIdWrVrXDMAow35sHUcBhGBpxqddBGYEnsyK4TH4mOENKJ45mwOyS0g%3D%3D&virtualDomain=001.live_hls.zte.com&JITPMediaType=DASH&JITPDRMType=NO",
+    type: "mpd",
+    drm:{
+      keyId:"31363232353335323435353337353331",
+      key:"35416a68643065697575493337566135"
+    }
+  },  {
+    name: "HEART OF ASIA",
+    logo: "",
+    src: "https://gma.xyadx.workers.dev/stream/HOA.m3u8",
+    type: "hls"
+  },
+  {
+    name: "I HEART MOVIES",
+    logo: "",
+    src: "https://gma.xyadx.workers.dev/stream/IHM.m3u8",
+    type: "hls"
+  },{
+  name:"GOLDEN TV",
+  logo:"https://i.imgur.com/urWAPgv.png",
+  src:"https://live20.bozztv.com/akamaissh101/ssh101/goldtvnet/chunks.m3u8",
+  type:"hls"
+},
+  {
+  name:"CINEMA ONE",
+  logo:"https://i.imgur.com/moSPpuJ.png",
+  src:"https://cdn-ue1-prod.tsv2.amagi.tv/linear/amg01006-abs-cbn-cinemaone-dash-abscbnono/index.mpd",
+  type:"mpd",
+  drm:{
+    keyId:"2615129ef2c846a9bbd43a641c7303ef",
+    key:"07c7f996b1734ea288641a68e1cfdc4d"
+  }
+},  {
+    name: "GMA)",
+    logo: "",
+    src: "https://gsattv.akamaized.net/live/media0/gma7/Widevine/gma7.mpd",
+    type: "mpd",
+    drm:{
+      keyId:"2615129ef2c846a9bbd43a641c7303ef",
+      key:"07c7f996b1734ea288641a68e1cfdc4d"
+    }
+  }, {
+    name: "(ALL TV)",
+    logo: "",
+    src: "https://kalibonco.qzz.io/001/2/ch00000090990000001179/manifest.mpd?AuthInfo=v87HD9rEhwHiAdYyrP20TsXah2%2FZLFNNIdWrVrXDMAow35sHUcBhGBpxqddBGYEnsyK4TH4mOENKJ45mwOyS0g%3D%3D&virtualDomain=001.live_hls.zte.com&JITPMediaType=DASH&JITPDRMType=NO",
+    type: "mpd",
+    drm:{
+      keyId:"31363232353335323435353337353331",
+      key:"35416a68643065697575493337566135"
+    }
+  },  {
+    name: "GoldTV1 (HLS)",
+    logo: "",
+    src: "https://gma.xyadx.workers.dev/stream/HOA.m3u8",
+    type: "hls"
+  },
+  {
+  name:"TV5",
+  logo:"https://i.imgur.com/Ddyfzrn.png",
+  src:"https://qp-pldt-live-bpk-02-prod.akamaized.net/bpk-tv/tv5_hd/default1/index.mpd",
+  type:"mpd",
+  drm:{
+    keyId:"2615129ef2c846a9bbd43a641c7303ef",
+    key:"07c7f996b1734ea288641a68e1cfdc4d"
+  }
+},  {
+    name: "GMA",
+    logo: "",
+    src: "https://gsattv.akamaized.net/live/media0/gma7/Widevine/gma7.mpd",
+    type: "mpd",
+    drm:{
+      keyId:"2615129ef2c846a9bbd43a641c7303ef",
+      key:"07c7f996b1734ea288641a68e1cfdc4d"
+    }
+  },
+ {
+    name: "ALL TV",
+    logo: "",
+    src: "https://kalibonco.qzz.io/001/2/ch00000090990000001179/manifest.mpd?AuthInfo=v87HD9rEhwHiAdYyrP20TsXah2%2FZLFNNIdWrVrXDMAow35sHUcBhGBpxqddBGYEnsyK4TH4mOENKJ45mwOyS0g%3D%3D&virtualDomain=001.live_hls.zte.com&JITPMediaType=DASH&JITPDRMType=NO",
+    type: "mpd",
+    drm:{
+      keyId:"31363232353335323435353337353331",
+      key:"35416a68643065697575493337566135"
+    }
+  }, 
+ {
+    name: "HEART OF ASIA",
+    logo: "",
+    src: "https://gma.xyadx.workers.dev/stream/HOA.m3u8",
+    type: "hls"
+  },
+{
+  name:"SDTV",
+  logo:"https://i.imgur.com/PfJ0jVP.png",
+  src:"https://live20.bozztv.com/giatvplayout7/giatv-210938/tracks-v1a1/mono.ts.m3u8",
+  type:"hls"
+},
+{
+    name: "INC TV",
+    logo: "",
+    src: "https://243529.global.ssl.fastly.net/6842a712b68c56f675d988f1/live_f5ac22b0566511f0805217b960326aaa/tracks-v1/index.fmp4.m3u8",
+    type: "hls"
+  },
+
+{
+  name:"TV5 (MPD / ClearKey)",
+  logo:"https://i.imgur.com/Ddyfzrn.png",
+  src:"https://qp-pldt-live-bpk-02-prod.akamaized.net/bpk-tv/tv5_hd/default1/index.mpd",
+  type:"mpd",
+  drm:{
+    keyId:"2615129ef2c846a9bbd43a641c7303ef",
+    key:"07c7f996b1734ea288641a68e1cfdc4d"
+  }
+},  {
+    name: "TV5 (MPD / ClearKey)",
+    logo: "",
+    src: "https://gsattv.akamaized.net/live/media0/gma7/Widevine/gma7.mpd",
+    type: "mpd",
+    drm:{
+      keyId:"2615129ef2c846a9bbd43a641c7303ef",
+      key:"07c7f996b1734ea288641a68e1cfdc4d"
+    }
+  }, {
+    name: "TV5 (MPD / ClearKey)",
+    logo: "",
+    src: "https://kalibonco.qzz.io/001/2/ch00000090990000001179/manifest.mpd?AuthInfo=v87HD9rEhwHiAdYyrP20TsXah2%2FZLFNNIdWrVrXDMAow35sHUcBhGBpxqddBGYEnsyK4TH4mOENKJ45mwOyS0g%3D%3D&virtualDomain=001.live_hls.zte.com&JITPMediaType=DASH&JITPDRMType=NO",
+    type: "mpd",
+    drm:{
+      keyId:"31363232353335323435353337353331",
+      key:"35416a68643065697575493337566135"
+    }
+  },{
+    name: "TV5 (MPD / ClearKey)",
+    logo: "",
+    src: "http://136.239.158.18:6610/001/2/ch00000090990000001079/manifest.mpd?AuthInfo=v87HD9rEhwHiAdYyrP20Tg5pgSMSITY%2FHYvvCWJRp%2BoglCgy7TAZamPXsCV8PgebytokK1MIobcue1ImXa0ZEA%3D%3D&version=v1.0&BreakPoint=0&virtualDomain=001.live_hls.zte.com&programid=ch00000000000000001138&contentid=ch00000000000000001138&videoid=ch00000090990000001079&recommendtype=0&userid=1897516127558&boid=001&stbid=02%3A00%3A00%3A00%3A00%3A00&terminalflag=1&profilecode=&usersessionid=1Z8S6AOLQ8XXXX&NeedJITP=1&JITPMediaType=DASH&JITPDRMType=NO",
+    drm:{
+      keyId:"31363232353335323435353337353331",
+      key:"35416a68643065697575493337566135"
+    }
+  }
+];
+
+/* BUILD LIST */
+function build(list, el){
+  el.innerHTML="";
+  list.forEach((ch,i)=>{
+    const row=document.createElement("div");
+    row.className="channel";
+
+    const img=document.createElement("img");
+    img.src=ch.logo || "https://via.placeholder.com/26x26?text=TV";
+
+    const sp=document.createElement("span");
+    sp.className = "chName";
+    sp.textContent = (i+1)+". " + ch.name;
+
+    row.appendChild(img);
+    row.appendChild(sp);
+
+    row.onclick=()=>playChannel(ch);
+
+    el.appendChild(row);
+  });
+}
+
+
+build(mainChannels, document.getElementById("mainList"));
+build(secondChannels, document.getElementById("secondList"));
+
+/* LAYOUT */
+function updateLayout(){
+  const playerBox = document.getElementById("playerBox");
+  const buttons  = document.getElementById("buttonsBar");
+  const pMain    = document.getElementById("panelMain");
+  const pSecond  = document.getElementById("panelSecond");
+  const ph = playerBox.offsetHeight;
+  const bh = buttons.offsetHeight;
+  buttons.style.top = ph+"px";
+  pMain.style.top   = (ph+bh)+"px";
+  pSecond.style.top = (ph+bh)+"px";
+}
+window.addEventListener("load",updateLayout);
+window.addEventListener("resize",updateLayout);
+
+/* TOGGLE CHANNEL LIST */
+function toggleList(type){
+  const p1=document.getElementById("panelMain");
+  const p2=document.getElementById("panelSecond");
+  if(type==="main"){
+    p1.style.display = p1.style.display==="block"?"none":"block";
+    p2.style.display = "none";
+  }else{
+    p2.style.display = p2.style.display==="block"?"none":"block";
+    p1.style.display = "none";
+  }
+}
+
+/* PLAY CHANNEL */
+function clearHls(){ if(hlsPlayer){ hlsPlayer.destroy(); hlsPlayer=null; } }
+function showLoading(v){ loading.style.opacity = v ? 1 : 0; }
+
+function playChannel(ch){
+  lastChannel = ch;
+  showLoading(true);
+  clearHls();
+  video.muted=false;
+  video.playbackRate=1.05;
+
+  if(ch.type==="mpd"){
+    player.configure({
+      drm:{ clearKeys:{ [ch.drm.keyId]:ch.drm.key } },
+      streaming:{ bufferingGoal:6, rebufferingGoal:1 }
+    });
+    player.load(ch.src).catch(retry);
+  }
+
+  if(ch.type==="hls"){
+    if(video.canPlayType("application/vnd.apple.mpegurl")){
+      video.src = ch.src;
+      video.play().catch(()=>{});
+      return;
+    }
+    if(Hls.isSupported()){
+      hlsPlayer = new Hls({
+        autoStartLoad:false,
+        startPosition:-1,
+        lowLatencyMode:true,
+        liveSyncDurationCount:1,
+        liveMaxLatencyDurationCount:3,
+        maxBufferLength:3,
+        backBufferLength:0,
+        abrEwmaFastLive:2,
+        abrEwmaSlowLive:5,
+        startFragPrefetch:true,
+        maxFragLookUpTolerance:0.1,
+        enableWorker:true,
+        capLevelToPlayerSize:true
+      });
+      hlsPlayer.attachMedia(video);
+      hlsPlayer.loadSource(ch.src);
+      hlsPlayer.startLoad(-1);
+      hlsPlayer.on(Hls.Events.MANIFEST_PARSED,()=>{ video.play().catch(()=>{}); });
+    }
+  }
+}
+
+/* RETRY */
+function retry(){ if(!lastChannel) return; clearTimeout(retryTimer); retryTimer=setTimeout(()=>playChannel(lastChannel),3000); }
+
+/* VIDEO EVENTS */
+video.addEventListener("playing",()=>showLoading(false));
+video.addEventListener("canplay",()=>showLoading(false));
+video.addEventListener("waiting",()=>showLoading(true));
+video.addEventListener("stalled",retry);
+video.addEventListener("error",retry);
+
+/* PULL SCREEN ON LANDSCAPE */
+function checkOrientation(){
+  const isLandscape = window.matchMedia("(orientation: landscape)").matches;
+  if(isLandscape){ video.style.objectFit = "cover"; } else { video.style.objectFit = "contain"; }
+}
+window.addEventListener("load", checkOrientation);
+window.addEventListener("resize", checkOrientation);
+window.addEventListener("orientationchange", checkOrientation);
+
+/* FULLSCREEN BUTTON */
+fsBtn.addEventListener("click", (e)=>{
+  e.stopPropagation();
+  if(!document.fullscreenElement){ wrap.requestFullscreen?.(); } else { document.exitFullscreen?.(); }
+});
+
+/* FIT/WIDE/FULL BUTTONS */
+fitBtn.addEventListener("click",()=>video.style.objectFit="contain");
+wideBtn.addEventListener("click",()=>video.style.objectFit="100% auto");
+fsBtn.addEventListener("click",()=>video.style.objectFit="cover");
+
+/* SHOW CONTROLS ON TAP */
+let hideTimer=null;
+wrap.addEventListener("click", ()=>{
+  controls.classList.add("show");
+  clearTimeout(hideTimer);
+  hideTimer = setTimeout(()=>controls.classList.remove("show"), 2500);
+});
+
+/* Ensure channel list visible on mobile */
+function updateChannelListDisplay(){
+  const p1=document.getElementById("panelMain");
+  const p2=document.getElementById("panelSecond");
+  if(lastChannel){ if(p1.style.display==="block" || p2.style.display==="block") return; p1.style.display="block"; p2.style.display="none"; }
+}
+window.addEventListener("resize", updateChannelListDisplay);
+window.addEventListener("load", updateChannelListDisplay);
+
+</script>
+
+  <script>
+/* ============================
+   SIMPLE PAGE PROTECTION ONLY
+   (NO CHANGE TO YOUR PLAYER)
+   ============================ */
+
+/* PALITAN MO ITO NG DOMAIN MO */
+var ALLOWED_HOST = "sanmateocable1.pages.dev/";
+
+/* fake 404 kapag ibang website binuksan */
+if (location.hostname !== ALLOWED_HOST) {
+  document.open();
+  document.write(`
+    <html>
+      <head><title>SAN MATEO CABLE AFFLIATE</title></head>
+      <body style="margin:0;background:#000;color:#fff;
+      display:flex;align-items:center;justify-content:center;
+      height:100vh;font-family:Arial">
+        <h1>ENJOY WATCHING</h1>
+      </body>
+    </html>
+  `);
+  document.close();
+}
+
+/* disable right click */
+document.addEventListener("contextmenu", function(e){
+  e.preventDefault();
+});
+
+/* block CTRL+U and CTRL+SHIFT+C */
+document.addEventListener("keydown", function(e){
+
+  /* CTRL + U */
+  if (e.ctrlKey && e.key.toLowerCase() === "u") {
+    e.preventDefault();
+    return false;
+  }
+
+  /* CTRL + SHIFT + C */
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+    e.preventDefault();
+    return false;
+  }
+
+});
+</script>
+
+
+
+
+<script>
+/* ============================
+   CLOUDFLARE PAGES FRIENDLY
+   PHONE ONLY / PC = BLACK
+   ============================ */
+
+var ALLOWED_HOST = "sanmateocable1.pages.dev";
+
+function isMobile(){
+  return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent);
+}
+
+/* block kapag maling domain (Cloudflare Pages safe) */
+if (location.hostname !== ALLOWED_HOST) {
+
+  document.documentElement.innerHTML = `
+  <head>
+    <title>404</title>
+    <style>
+      body{
+        margin:0;
+        background:#000;
+        color:#fff;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        height:100vh;
+        font-family:Arial;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>404</h1>
+  </body>
+  `;
+
+  throw new Error("Host blocked");
+}
+
+/* block kapag PC / laptop */
+if (!isMobile()) {
+
+  document.documentElement.innerHTML = `
+  <head>
+    <title>404</title>
+    <style>
+      body{
+        margin:0;
+        background:#000;
+        color:#fff;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        height:100vh;
+        font-family:Arial;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>404</h1>
+  </body>
+  `;
+
+  throw new Error("Desktop blocked");
+}
+
+/* disable right click */
+document.addEventListener("contextmenu", function(e){
+  e.preventDefault();
+});
+
+/* block view source shortcuts */
+document.addEventListener("keydown", function(e){
+  if (e.ctrlKey && e.key.toLowerCase() === "u") {
+    e.preventDefault();
+    return false;
+  }
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+    e.preventDefault();
+    return false;
+  }
+});
+</script>
+
+
+
+
+
+
+
+
+  
+<script disable-devtool-auto
+src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
