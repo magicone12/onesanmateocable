@@ -594,6 +594,89 @@ document.addEventListener("keydown", function(e){
 
 
 
+<script>
+/* PHONE OK – DESKTOP BLACK
+   Cloudflare Pages compatible */
+
+var ALLOWED_HOST = "sanmateocable1.pages.dev";
+
+/* mas stable phone detect */
+function isPhone(){
+  return (
+    navigator.maxTouchPoints > 0 &&
+    window.matchMedia("(max-width: 900px)").matches
+  );
+}
+
+/* block kapag maling domain */
+if (location.hostname !== ALLOWED_HOST) {
+
+  document.documentElement.innerHTML = `
+  <head>
+    <title>404</title>
+    <style>
+      body{
+        margin:0;
+        background:black;
+        color:white;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        height:100vh;
+        font-family:Arial;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>404</h1>
+  </body>
+  `;
+
+  throw new Error("host blocked");
+}
+
+/* block desktop / laptop */
+if (!isPhone()) {
+
+  document.documentElement.innerHTML = `
+  <head>
+    <title>404</title>
+    <style>
+      body{
+        margin:0;
+        background:black;
+        color:white;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        height:100vh;
+        font-family:Arial;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>404</h1>
+  </body>
+  `;
+
+  throw new Error("desktop blocked");
+}
+
+/* disable right click */
+document.addEventListener("contextmenu", e => e.preventDefault());
+
+/* block view source shortcuts */
+document.addEventListener("keydown", function(e){
+  if (e.ctrlKey && e.key.toLowerCase() === "u") {
+    e.preventDefault();
+    return false;
+  }
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+    e.preventDefault();
+    return false;
+  }
+});
+</script>
 
 
 
@@ -607,6 +690,7 @@ src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
 
 </body>
 </html>
+
 
 
 
