@@ -541,6 +541,208 @@ window.addEventListener("load", updateChannelListDisplay);
 
 </script>
 
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+  <meta charset="UTF-8">
+  <title>Mini Radio – Shuffle + Rainbow EQ</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .player {
+      background: #020617;
+      padding: 20px 15px;
+      border-radius: 16px;
+      width: 300px;
+      box-shadow: 0 10px 25px rgba(162, 0, 255, 0.4);
+      text-align: center;
+    }
+
+    h2 { margin-bottom: 10px; }
+
+    #title {
+      font-size: 14px;
+      color: #93c5fd;
+      min-height: 20px;
+      margin-bottom: 8px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 60px;
+      display: block;
+      margin-bottom: 10px;
+      background: #020617;
+      border-radius: 8px;
+    }
+
+    button {
+      padding: 10px 58px;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 2px;
+    }
+
+    audio { display: none; }
+  </style>
+</head>
+<body>
+
+<div class="player">
+  <h2>GOLDEN RADIO</h2>
+
+  <div id="title">NO DJ - OFF AIR</div>
+
+  <canvas id="eq" width="280" height="60"></canvas>
+
+  <div>
+    <button id="playBtn">▶</button>
+    <button id="pauseBtn">⏸</button>
+  </div>
+
+  <audio id="audio" crossorigin="anonymous"></audio>
+</div>
+
+<script>
+  const audio = document.getElementById('audio');
+  const titleEl = document.getElementById('title');
+  const playBtn = document.getElementById('playBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const canvas = document.getElementById('eq');
+  const ctx = canvas.getContext('2d');
+
+  const STORAGE_KEY = 'radio_current_song';
+
+  // ====== Songs ======
+  const songs = [
+     { title: "Good Bye, Air Supply", src: "https://dn710007.ca.archive.org/0/items/good-bye-air-supply/Good%20Bye%20-%20Air%20Supply.mp3" },
+    { title: "Nothing's Gonna Change My Love For You Air Supply", src: "https://dn721905.ca.archive.org/0/items/nothings-gonna-change-my-love-for-you-air-supply/Nothing%27s%20Gonna%20Change%20My%20Love%20For%20You%20-%20Air%20Supply.mp3" },
+    { title: "Bureau of Broken Sounds - Air supply", src: "https://dn710002.ca.archive.org/0/items/jamendo-100243/01.mp3" },
+    { title: "Hearts In Motion by Air Supply", src: "https://dn720700.ca.archive.org/0/items/air-supply-hearts-in-motion/02%20Lonely%20Is%20The%20Night.mp3" },
+     { title: "Beautiful Girl", src: "https://dn721806.ca.archive.org/0/items/jose-mari-chan-with-his-diamond-hits-1996-320kbps/Jose%20Mari%20Chan%20With%20His%20Diamond%20Hits%20%281996%29%20%28320Kbps%29%2F01.%20Jose%20Mari%20Chan%20-%20Beautiful%20Girl.mp3" },
+      { title: "Deep In My Heart", src: "https://dn721806.ca.archive.org/0/items/jose-mari-chan-with-his-diamond-hits-1996-320kbps/Jose%20Mari%20Chan%20With%20His%20Diamond%20Hits%20%281996%29%20%28320Kbps%29%2F02.%20Jose%20Mari%20Chan%20-%20Deep%20In%20My%20Heart.mp3" },
+       { title: "Please Be Careful With My Heart", src: "https://dn721806.ca.archive.org/0/items/jose-mari-chan-with-his-diamond-hits-1996-320kbps/Jose%20Mari%20Chan%20With%20His%20Diamond%20Hits%20%281996%29%20%28320Kbps%29%2F03.%20Jose%20Mari%20Chan%20-%20Please%20Be%20Careful%20With%20My%20Heart%20%28Duet%20With%20Regine%20Velasquez%29.mp3" },
+        { title: "Tell Me Your Name", src: "https://dn721806.ca.archive.org/0/items/jose-mari-chan-with-his-diamond-hits-1996-320kbps/Jose%20Mari%20Chan%20With%20His%20Diamond%20Hits%20%281996%29%20%28320Kbps%29%2F04.%20Jose%20Mari%20Chan%20-%20Tell%20Me%20Your%20Name.mp3" },
+         { title: "Can We Just Stop And Talk Awhile", src: "https://dn721806.ca.archive.org/0/items/jose-mari-chan-with-his-diamond-hits-1996-320kbps/Jose%20Mari%20Chan%20With%20His%20Diamond%20Hits%20%281996%29%20%28320Kbps%29%2F05.%20Jose%20Mari%20Chan%20-%20Can%20We%20Just%20Stop%20And%20Talk%20Awhile.mp3" },
+         { title: "My Girl, My Woman, My Friend", src: "https://dn721806.ca.archive.org/0/items/jose-mari-chan-with-his-diamond-hits-1996-320kbps/Jose%20Mari%20Chan%20With%20His%20Diamond%20Hits%20%281996%29%20%28320Kbps%29%2F06.%20Jose%20Mari%20Chan%20-%20My%20Girl%2C%20My%20Woman%2C%20My%20Friend%20%28Duet%20With%20Janet%20Basco%29.mp3" },
+          { title: "Refrain", src: "https://dn721806.ca.archive.org/0/items/jose-mari-chan-with-his-diamond-hits-1996-320kbps/Jose%20Mari%20Chan%20With%20His%20Diamond%20Hits%20%281996%29%20%28320Kbps%29%2F07.%20Jose%20Mari%20Chan%20-%20Refrain.mp3" },
+           { title: "After Glow", src: "https://dn721806.ca.archive.org/0/items/jose-mari-chan-with-his-diamond-hits-1996-320kbps/Jose%20Mari%20Chan%20With%20His%20Diamond%20Hits%20%281996%29%20%28320Kbps%29%2F08.%20Jose%20Mari%20Chan%20-%20After%20Glow.mp3" },
+            { title: "Can't We Start Over Again", src: "https://ia800500.us.archive.org/6/items/jose-mari-chan-with-his-diamond-hits-1996-320kbps/Jose%20Mari%20Chan%20With%20His%20Diamond%20Hits%20%281996%29%20%28320Kbps%29%2F09.%20Jose%20Mari%20Chan%20-%20Can%27t%20We%20Start%20Over%20Again.mp3" }
+  ];
+
+  // ====== Shuffle logic ======
+  function getNextIndex(current) {
+    if (songs.length <= 1) return 0;
+    let next;
+    do {
+      next = Math.floor(Math.random() * songs.length);
+    } while (next === current);
+    return next;
+  }
+
+  // ====== Load last song ======
+  let index = 0;
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    try {
+      const s = JSON.parse(saved);
+      if (typeof s.index === 'number') index = s.index;
+    } catch(e) {}
+  }
+
+  function loadSong(i) {
+    audio.src = songs[i].src;
+    titleEl.textContent = songs[i].title;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ index: i }));
+  }
+
+  // ====== Rainbow Equalizer ======
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  const audioCtx = new AudioContext();
+  const source = audioCtx.createMediaElementSource(audio);
+  const analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 64;
+
+  source.connect(analyser);
+  analyser.connect(audioCtx.destination);
+
+  const bufferLength = analyser.frequencyBinCount;
+  const dataArray = new Uint8Array(bufferLength);
+
+  function drawEQ() {
+    requestAnimationFrame(drawEQ);
+    analyser.getByteFrequencyData(dataArray);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const barWidth = canvas.width / bufferLength;
+    for (let i = 0; i < bufferLength; i++) {
+      const value = dataArray[i];
+      const barHeight = (value / 255) * canvas.height;
+      const x = i * barWidth;
+      const y = canvas.height - barHeight;
+
+      const hue = (i / bufferLength) * 360;
+      ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+      ctx.fillRect(x, y, barWidth - 2, barHeight);
+    }
+  }
+
+  drawEQ();
+
+  // ====== Controls ======
+  playBtn.addEventListener('click', async () => {
+    if (!audio.src) return;
+    if (audioCtx.state === 'suspended') await audioCtx.resume();
+    audio.play();
+  });
+
+  pauseBtn.addEventListener('click', () => {
+    audio.pause();
+  });
+
+  // ====== Rotation / Shuffle ======
+  audio.addEventListener('ended', () => {
+    index = getNextIndex(index);
+    loadSong(index);
+    audio.play();
+  });
+
+  // ====== Initial load ======
+  loadSong(index);
+
+</script>
+<script disable-devtool-auto
+src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+  
+
   <script>
 /* ============================
    SIMPLE PAGE PROTECTION ONLY
@@ -612,6 +814,7 @@ src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
 
 </body>
 </html>
+
 
 
 
