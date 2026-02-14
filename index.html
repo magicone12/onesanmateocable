@@ -595,62 +595,47 @@ document.addEventListener("keydown", function(e){
 
 
 <script>
-/* PHONE OK – DESKTOP BLACK
-   Cloudflare Pages compatible */
+/* =========================
+   PHONE OK – PC = 404
+   Cloudflare Pages safe
+   ========================= */
 
 var ALLOWED_HOST = "onesanmateocable.pages.dev";
 
-/* mas stable phone detect */
-function isPhone(){
+/* detect phone / tablet */
+function isMobile(){
   return (
     navigator.maxTouchPoints > 0 &&
     window.matchMedia("(max-width: 900px)").matches
   );
 }
 
-/* block kapag maling domain */
+/* block kapag hindi tamang domain */
 if (location.hostname !== ALLOWED_HOST) {
-
-  document.documentElement.innerHTML = `
-  <head>
-    <title>404</title>
-    <style>
-      body{
-        margin:0;
-        background:black;
-        color:white;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        height:100vh;
-        font-family:Arial;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>404</h1>
-  </body>
-  `;
-
-  throw new Error("host blocked");
+  show404();
+  throw new Error("blocked host");
 }
 
-/* block desktop / laptop */
-if (!isPhone()) {
+/* block kapag PC / laptop */
+if (!isMobile()) {
+  show404();
+  throw new Error("desktop blocked");
+}
 
+function show404(){
   document.documentElement.innerHTML = `
   <head>
     <title>404</title>
     <style>
       body{
         margin:0;
-        background:black;
-        color:white;
+        background:#000;
+        color:#fff;
         display:flex;
         align-items:center;
         justify-content:center;
         height:100vh;
-        font-family:Arial;
+        font-family:Arial, sans-serif;
       }
     </style>
   </head>
@@ -658,8 +643,6 @@ if (!isPhone()) {
     <h1>404</h1>
   </body>
   `;
-
-  throw new Error("desktop blocked");
 }
 
 /* disable right click */
@@ -689,6 +672,7 @@ src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
 
 </body>
 </html>
+
 
 
 
