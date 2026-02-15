@@ -225,7 +225,16 @@ const mainChannels = [
 ];
 
 const secondChannels = [
-{
+ {
+    name: "KAPAMILYA CHANNEL",
+    logo: "https://i.imgur.com/fRETRXx.png",
+    src: "https://cdn-ue1-prod.tsv2.amagi.tv/linear/amg01006-abs-cbn-kapcha-dash-abscbnono/54afaecb-9608-4827-a19a-e1a2d2f498d5/index.mpd",
+    type: "mpd",
+    drm:{
+      keyId:"2615129ef2c846a9bbd43a641c7303ef",
+      key:"07c7f996b1734ea288641a68e1cfdc4d"
+    }
+  },{
   name:"A2Z",
   logo:"https://i.imgur.com/43nZ2rv.png",
   src:"https://qp-pldt-live-bpk-02-prod.akamaized.net/bpk-tv/cg_a2z/default/index.mpd",
@@ -233,6 +242,15 @@ const secondChannels = [
   drm:{
     keyId:"3f6d8a2c1b7e4c9f8d52a7e1b0c6f93d",
     key:"4019f9269b9054a2b9e257b114ebbaf2"
+  }
+},{
+  name:"PTV4",
+  logo:"https://i.imgur.com/Ktl7qZt.png",
+  src:"https://qp-pldt-live-bpk-01-prod.akamaized.net/bpk-tv/cg_ptv4_sd/default/index.mpd",
+  type:"mpd",
+  drm:{
+    keyId:"71a130a851b9484bb47141c8966fb4a3",
+    key:"ad1f003b4f0b31b75ea4593844435600"
   }
 },{
   name:"TV5",
@@ -288,62 +306,53 @@ const secondChannels = [
     key:"07c7f996b1734ea288641a68e1cfdc4d"
   }
 },  {
-    name: "GMA)",
-    logo: "",
-    src: "https://gsattv.akamaized.net/live/media0/gma7/Widevine/gma7.mpd",
+    name: "IBC13",
+    logo: "https://i.imgur.com/Org4yTu.png",
+    src: "https://qp-pldt-live-bpk-01-prod.akamaized.net/bpk-tv/ibc13_sd_new/default1/index.mpd",
     type: "mpd",
     drm:{
-      keyId:"2615129ef2c846a9bbd43a641c7303ef",
-      key:"07c7f996b1734ea288641a68e1cfdc4d"
-    }
-  }, {
-    name: "(ALL TV)",
-    logo: "",
-    src: "https://kalibonco.qzz.io/001/2/ch00000090990000001179/manifest.mpd?AuthInfo=v87HD9rEhwHiAdYyrP20TsXah2%2FZLFNNIdWrVrXDMAow35sHUcBhGBpxqddBGYEnsyK4TH4mOENKJ45mwOyS0g%3D%3D&virtualDomain=001.live_hls.zte.com&JITPMediaType=DASH&JITPDRMType=NO",
-    type: "mpd",
-    drm:{
-      keyId:"31363232353335323435353337353331",
-      key:"35416a68643065697575493337566135"
+      keyId:"	16ecd238c0394592b8d3559c06b1faf5",
+      key:"05b47ae3be1368912ebe28f87480fc84"
     }
   },  {
-    name: "GoldTV1 (HLS)",
+    name: "RESERVED",
     logo: "",
-    src: "https://gma.xyadx.workers.dev/stream/HOA.m3u8",
+    src: "",
     type: "hls"
   },
   {
-  name:"TV5",
-  logo:"https://i.imgur.com/Ddyfzrn.png",
-  src:"https://qp-pldt-live-bpk-02-prod.akamaized.net/bpk-tv/tv5_hd/default1/index.mpd",
+  name:"RESERVED",
+  logo:"",
+  src:"",
   type:"mpd",
   drm:{
-    keyId:"2615129ef2c846a9bbd43a641c7303ef",
-    key:"07c7f996b1734ea288641a68e1cfdc4d"
+    keyId:"",
+    key:""
   }
 },  {
-    name: "GMA",
+    name: "RESERVED",
     logo: "",
-    src: "https://gsattv.akamaized.net/live/media0/gma7/Widevine/gma7.mpd",
+    src: "",
     type: "mpd",
     drm:{
-      keyId:"2615129ef2c846a9bbd43a641c7303ef",
-      key:"07c7f996b1734ea288641a68e1cfdc4d"
+      keyId:"",
+      key:""
     }
   },
  {
-    name: "ALL TV",
+    name: "RESERVED",
     logo: "",
-    src: "https://kalibonco.qzz.io/001/2/ch00000090990000001179/manifest.mpd?AuthInfo=v87HD9rEhwHiAdYyrP20TsXah2%2FZLFNNIdWrVrXDMAow35sHUcBhGBpxqddBGYEnsyK4TH4mOENKJ45mwOyS0g%3D%3D&virtualDomain=001.live_hls.zte.com&JITPMediaType=DASH&JITPDRMType=NO",
+    src: "",
     type: "mpd",
     drm:{
-      keyId:"31363232353335323435353337353331",
-      key:"35416a68643065697575493337566135"
+      keyId:"",
+      key:""
     }
   }, 
  {
-    name: "HEART OF ASIA",
+    name: "RESERVED",
     logo: "",
-    src: "https://gma.xyadx.workers.dev/stream/HOA.m3u8",
+    src: "",
     type: "hls"
   },
 {
@@ -360,39 +369,39 @@ const secondChannels = [
   },
 
 {
-  name:"TV5 (MPD / ClearKey)",
-  logo:"https://i.imgur.com/Ddyfzrn.png",
-  src:"https://qp-pldt-live-bpk-02-prod.akamaized.net/bpk-tv/tv5_hd/default1/index.mpd",
+  name:"RESERVED",
+  logo:"",
+  src:"",
   type:"mpd",
   drm:{
-    keyId:"2615129ef2c846a9bbd43a641c7303ef",
-    key:"07c7f996b1734ea288641a68e1cfdc4d"
+    keyId:"",
+    key:""
   }
 },  {
-    name: "TV5 (MPD / ClearKey)",
+    name: "RESERVED",
     logo: "",
-    src: "https://gsattv.akamaized.net/live/media0/gma7/Widevine/gma7.mpd",
+    src: "",
     type: "mpd",
     drm:{
-      keyId:"2615129ef2c846a9bbd43a641c7303ef",
-      key:"07c7f996b1734ea288641a68e1cfdc4d"
+      keyId:"",
+      key:""
     }
   }, {
-    name: "TV5 (MPD / ClearKey)",
+    name: "RESERVED",
     logo: "",
-    src: "https://kalibonco.qzz.io/001/2/ch00000090990000001179/manifest.mpd?AuthInfo=v87HD9rEhwHiAdYyrP20TsXah2%2FZLFNNIdWrVrXDMAow35sHUcBhGBpxqddBGYEnsyK4TH4mOENKJ45mwOyS0g%3D%3D&virtualDomain=001.live_hls.zte.com&JITPMediaType=DASH&JITPDRMType=NO",
+    src: "",
     type: "mpd",
     drm:{
-      keyId:"31363232353335323435353337353331",
-      key:"35416a68643065697575493337566135"
+      keyId:"",
+      key:""
     }
   },{
-    name: "TV5 (MPD / ClearKey)",
+    name: "RESERVED",
     logo: "",
-    src: "http://136.239.158.18:6610/001/2/ch00000090990000001079/manifest.mpd?AuthInfo=v87HD9rEhwHiAdYyrP20Tg5pgSMSITY%2FHYvvCWJRp%2BoglCgy7TAZamPXsCV8PgebytokK1MIobcue1ImXa0ZEA%3D%3D&version=v1.0&BreakPoint=0&virtualDomain=001.live_hls.zte.com&programid=ch00000000000000001138&contentid=ch00000000000000001138&videoid=ch00000090990000001079&recommendtype=0&userid=1897516127558&boid=001&stbid=02%3A00%3A00%3A00%3A00%3A00&terminalflag=1&profilecode=&usersessionid=1Z8S6AOLQ8XXXX&NeedJITP=1&JITPMediaType=DASH&JITPDRMType=NO",
+    src: "",
     drm:{
-      keyId:"31363232353335323435353337353331",
-      key:"35416a68643065697575493337566135"
+      keyId:"",
+      key:""
     }
   }
 ];
@@ -610,6 +619,7 @@ src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
 
 </body>
 </html>
+
 
 
 
