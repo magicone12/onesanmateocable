@@ -60,6 +60,28 @@ overflow:hidden;
   background:#333;
   color:#fff;
 }
+  /* force fixed popup on phone */
+@media (max-width: 768px){
+
+  #codeOverlay{
+    position: fixed !important;
+    inset: 0;
+    width:100vw;
+    height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:999999;
+  }
+
+  #codeBox{
+    position: relative;
+    width:90%;
+    max-width:320px;
+  }
+
+}
+
 </style>
 
 <div id="codeOverlay">
@@ -827,6 +849,7 @@ src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
 
 </body>
 </html>
+
 
 
 
