@@ -170,7 +170,7 @@ video{
 
 <div class="buttonsFixed" id="buttonsBar">
   <button onclick="toggleList('main')">AFFLIATE TV</button>
-  <button onclick="toggleList('second')">SAN MATEO CABLE</button>
+ <button onclick="openSanMateo()">SAN MATEO CABLE</button>
 </div>
 
 <div class="channelPanelFixed" id="panelMain">
@@ -619,5 +619,40 @@ if(location.hostname !== ALLOWED_HOST){
 
 <script src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
 
+<script>
+/* ===== SAN MATEO USER CODE ACCESS ===== */
+
+/* dito mo ilalagay lahat ng valid codes */
+const SAN_MATEO_CODES = [
+  "SMC-2025",
+  "SANMATEO-001",
+  "GOLDENVIP"
+];
+
+let sanMateoUnlocked = false;
+
+function openSanMateo(){
+
+  if(sanMateoUnlocked){
+    toggleList('second');
+    return;
+  }
+
+  const code = prompt("ENTER YOUR SAN MATEO USER CODE");
+
+  if(!code) return;
+
+  if(SAN_MATEO_CODES.includes(code.trim())){
+    sanMateoUnlocked = true;
+    alert("ACCESS GRANTED");
+    toggleList('second');
+  }else{
+    alert("INVALID USER CODE");
+  }
+}
+</script>
+
+
 </body>
 </html>
+
