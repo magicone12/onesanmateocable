@@ -1,3 +1,7 @@
+dabest player
+
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,14 +10,109 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.compiled.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
+
+
+<style>
+#codeOverlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.75);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:99999;
+   overflow:hidden;
+}
+#codeBox{
+  background:#111;
+  border-radius:12px;
+  padding:20px;
+  width:400px;
+  text-align:center;
+  box-shadow:0 0 20px #000;
+  overflow:hidden;
+
+}
+#codeBox h3{margin:0 0 10px;}
+#codeBox input{
+  width:92%;
+  padding:10px;
+  border-radius:6px;
+  border:none;
+  outline:none;
+  margin-bottom:10px;
+  overflow:hidden;
+overflow:hidden;
+}
+#codeBox button{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:6px;
+  background:#00e1ff;
+  color:#000;
+  font-weight:bold;
+  cursor:pointer;
+}
+#codeErr{
+  color:#ff6b6b;
+  font-size:12px;
+  margin-top:8px;
+}
+ #codeBox .cancelBtn{
+  margin-top:8px;
+  background:#333;
+  color:#fff;
+}
+  /* force fixed popup on phone */
+/* MOBILE FIXED POPUP */
+@media (max-width: 768px){
+  #codeOverlay{
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%);
+    width: 300px !important;   /* fixed width */
+    max-width: 300px !important;
+    padding: 20px;
+    background: #1e1e1e;
+    border-radius: 12px;
+    z-index: 999999;
+    display: block !important;
+  }
+
+  #codeBox{
+    width: 0% !important;
+  }
+
+  body{
+    overflow: hidden;  /* para hindi mag-scroll habang nakabukas ang popup */
+  }
+}
+
+
+
+</style>
+
+<div id="codeOverlay">
+  <div id="codeBox">
+    <h3>SAN MATEO CABLE</h3>
+    <p>Enter User Code</p>
+    <input id="userCodeInput" placeholder="Enter code">
+   <button onclick="submitUserCode()">UNLOCK</button>
+<button class="cancelBtn" onclick="closeGate()">CANCEL</button>
+    <div id="codeErr"></div>
+  </div>
+</div>
+
+
+  
 <style>
 body{
   margin:0;
   background:#111;
   color:#fff;
   font-family:Arial, sans-serif;
-  overflow:none;
-  z-index:1000;
 }
 
 /* PLAYER */
@@ -67,7 +166,7 @@ video{
   cursor:pointer;
 }
 
-/* loading text */
+/* loading */
 .loading{
   position:absolute;
   inset:0;
@@ -75,7 +174,6 @@ video{
   align-items:center;
   justify-content:center;
   font-size:14px;
-  letter-spacing:.5px;
   background:rgba(0,0,0,.4);
   pointer-events:none;
   opacity:0;
@@ -96,7 +194,7 @@ video{
 
 .buttonsFixed button{
   flex:1;
-  padding:35px;
+  padding:30px;
   border:none;
   border-radius:8px;
   background:#2b2b2b;
@@ -118,41 +216,40 @@ video{
   max-height:60vh;
   overflow-y:auto;
 }
+
 .channelPanelFixed h3{
   margin:0 0 10px;
   text-align:center;
-  position: sticky;
-  top: 0;
-  z-index: 999;
+  position:sticky;
+  top:0;
   background:#00e1ff;
-  padding:25px 0;
-}
-
-.chName{
-  flex:1;
-  text-align:center;
-  font-weight:500;
+  color:#000;
+  padding:18px 0;
 }
 
 .channel{
   display:flex;
   align-items:center;
-  gap:8px;
-  padding:45px;
+  gap:12px;
+  padding:20px;
   margin-bottom:6px;
   background:#2b2b2b;
   border-radius:6px;
   cursor:pointer;
 }
-.channel:hover{background:#000000;}
 
 .channel img{
-  width:80px;
-  height:40px;
-  border-radius:4px;
+  width:60px;
+  height:36px;
+  object-fit:contain;
 }
 
-.spacer{height:1500px;}
+.chName{
+  flex:1;
+  text-align:center;
+}
+
+.spacer{height:1400px;}
 </style>
 </head>
 
@@ -160,12 +257,10 @@ video{
 
 <div class="playerFixed" id="playerBox">
   <div class="videoWrap" id="videoWrap">
-    <video id="video"
-      autoplay
-      muted
-      playsinline
-      poster="https://via.placeholder.com/1280x720?text=Select+a+Channel"></video>
+    <video id="video" autoplay playsinline></video>
+
     <div class="loading" id="loadingTxt">Loading channel…</div>
+
     <div class="controlsOverlay" id="controls">
       <button class="ctrlBtn" id="fsBtn">FULL</button>
       <button class="ctrlBtn" id="wideBtn">WIDE</button>
@@ -175,12 +270,12 @@ video{
 </div>
 
 <div class="buttonsFixed" id="buttonsBar">
-  <button onclick="toggleList('main')">AFFILIATE TV</button>
-  <button onclick="toggleList('second')">SAN MATEO CABLE</button>
+  <button onclick="toggleList('main')">AFFLIATE TV</button>
+ <button onclick="openSanMateoGate()">SAN MATEO CABLE</button>
 </div>
 
 <div class="channelPanelFixed" id="panelMain">
-  <h3>AFFILIATE TV</h3>
+  <h3>AFFLIATE TV</h3>
   <div id="mainList"></div>
 </div>
 
@@ -194,36 +289,69 @@ video{
 <script>
 shaka.polyfill.installAll();
 
-const video  = document.getElementById("video");
+const video   = document.getElementById("video");
 const loading = document.getElementById("loadingTxt");
+const wrap    = document.getElementById("videoWrap");
+
 const controls = document.getElementById("controls");
-const fsBtn = document.getElementById("fsBtn");
+const fsBtn   = document.getElementById("fsBtn");
 const wideBtn = document.getElementById("wideBtn");
-const fitBtn = document.getElementById("fitBtn");
-const wrap = document.getElementById("videoWrap");
+const fitBtn  = document.getElementById("fitBtn");
+
 const player = new shaka.Player(video);
 
 let hlsPlayer = null;
 let lastChannel = null;
 let retryTimer = null;
 
-/* CHANNELS */
+
+/* ========= CHANNELS ========= */
+
 const mainChannels = [
-{
-  name:"GOLDEN TV",
-  logo:"https://i.imgur.com/urWAPgv.png",
-  src:"https://long-hall-41fd.ostamark484.workers.dev",
-  type:"hls"
-}, {
-  name:"SDTV",
-  logo:"https://i.imgur.com/PfJ0jVP.png",
-  src:"https://live20.bozztv.com/giatvplayout7/giatv-210938/tracks-v1a1/mono.ts.m3u8",
-  type:"hls"
-}
+  {
+    name:"GOLDEN TV",
+    logo:"https://i.imgur.com/urWAPgv.png",
+    src:"https://long-hall-41fd.ostamark484.workers.dev",
+    type:"hls"
+  },
+  {
+    name:"SDTV",
+    logo:"https://i.imgur.com/PfJ0jVP.png",
+    src:"https://live20.bozztv.com/giatvplayout7/giatv-210938/tracks-v1a1/mono.ts.m3u8",
+    type:"hls"
+  }
 ];
 
+/* (same list mo sa secondChannels – hindi ko ginalaw sources mo) */
 const secondChannels = [
-{
+ {
+    name: "KAPAMILYA CHANNEL",
+    logo: "https://i.imgur.com/fRETRXx.png",
+    src: "https://cdn-ue1-prod.tsv2.amagi.tv/linear/amg01006-abs-cbn-kapcha-dash-abscbnono/54afaecb-9608-4827-a19a-e1a2d2f498d5/index.mpd",
+    type: "mpd",
+    drm:{
+      keyId:"2615129ef2c846a9bbd43a641c7303ef",
+      key:"07c7f996b1734ea288641a68e1cfdc4d"
+    }
+  },{
+  name:"A2Z",
+  logo:"https://i.imgur.com/43nZ2rv.png",
+  src:"https://qp-pldt-live-bpk-02-prod.akamaized.net/bpk-tv/cg_a2z/default/index.mpd",
+  type:"mpd",
+  drm:{
+    keyId:"3f6d8a2c1b7e4c9f8d52a7e1b0c6f93d",
+    key:"4019f9269b9054a2b9e257b114ebbaf2"
+  }
+},{
+  name:"PTV4",
+  logo:"https://i.imgur.com/Ktl7qZt.png",
+  src:"https://qp-pldt-live-bpk-01-prod.akamaized.net/bpk-tv/cg_ptv4_sd/default/index.mpd",
+  type:"mpd",
+  drm:{
+    keyId:"71a130a851b9484bb47141c8966fb4a3",
+    key:"ad1f003b4f0b31b75ea4593844435600"
+  }
+},{
   name:"TV5",
   logo:"https://i.imgur.com/Ddyfzrn.png",
   src:"https://qp-pldt-live-bpk-02-prod.akamaized.net/bpk-tv/tv5_hd/default1/index.mpd",
@@ -232,10 +360,167 @@ const secondChannels = [
     keyId:"2615129ef2c846a9bbd43a641c7303ef",
     key:"07c7f996b1734ea288641a68e1cfdc4d"
   }
-}
-];
+},  {
+    name: "GMA",
+    logo: "https://i.imgur.com/nMSt2j0.png",
+    src: "https://gsattv.akamaized.net/live/media0/gma7/Widevine/gma7.mpd",
+    type: "mpd",
+    drm:{
+      keyId:"2615129ef2c846a9bbd43a641c7303ef",
+      key:"07c7f996b1734ea288641a68e1cfdc4d"
+    }
+  },  {
+    name: "GTV",
+    logo: "https://i.imgur.com/txozMGM.png",
+    src: "https://kalibonco.qzz.io/001/2/ch00000090990000001143/manifest.mpd?AuthInfo=v87HD9rEhwHiAdYyrP20TsXah2%2FZLFNNIdWrVrXDMArwAtJC%2BsmBQ5ARU076BdkhsyK4TH4mOENKJ45mwOyS0g%3D%3D&version=v1.0&BreakPoint=0&virtualDomain=001.live_hls.zte.com&programid=ch00000000000000001313&contentid=ch00000000000000001313&videoid=ch00000090990000001143&recommendtype=0&userid=1430687738767&boid=001&stbid=02%3A00%3A00%3A00%3A00%3A00&terminalflag=1&profilecode=&usersessionid=VTF7PQ0PAOMXXX&NeedJITP=1&JITPMediaType=DASH&JITPDRMType=NO",
+    type: "mpd",
+    drm:{
+      keyId:"4a9d2f7c1e6b4c8d8a55d7b1e3f0c926",
+      key:"2e62531bdb450480a18197b14f4ebc77"
+    }
+  },  {
+    name: "ALL TV",
+    logo: "https://i.imgur.com/wo8vkU8.png",
+    src: "https://kalibonco.qzz.io/001/2/ch00000090990000001179/manifest.mpd?AuthInfo=v87HD9rEhwHiAdYyrP20TsXah2%2FZLFNNIdWrVrXDMAow35sHUcBhGBpxqddBGYEnsyK4TH4mOENKJ45mwOyS0g%3D%3D&virtualDomain=001.live_hls.zte.com&JITPMediaType=DASH&JITPDRMType=NO",
+    type: "mpd",
+    drm:{
+      keyId:"31363232353335323435353337353331",
+      key:"35416a68643065697575493337566135"
+    }
+  },  {
+    name: "HEART OF ASIA",
+    logo: "https://i.imgur.com/1bPpXUt.png",
+    src: "https://still-union-b4e1.ostamark484.workers.dev/",
+    type: "hls"
+  },
+  {
+    name: "I HEART MOVIES",
+    logo: "https://i.imgur.com/PALAEXx.jpeg",
+    src: "https://fancy-fog-9df8.ostamark484.workers.dev/",
+    type: "hls"
+  },{
+  name:"GOLDEN TV",
+  logo:"https://i.imgur.com/urWAPgv.png",
+  src:"https://long-hall-41fd.ostamark484.workers.dev",
+  type:"hls"
+},
+  {
+  name:"CINEMA ONE",
+  logo:"https://i.imgur.com/moSPpuJ.png",
+  src:"https://cdn-ue1-prod.tsv2.amagi.tv/linear/amg01006-abs-cbn-cinemaone-dash-abscbnono/index.mpd",
+  type:"mpd",
+  drm:{
+    keyId:"2615129ef2c846a9bbd43a641c7303ef",
+    key:"07c7f996b1734ea288641a68e1cfdc4d"
+  }
+}, 
+  {
+    name: "CINEMO!",
+    logo: "https://i.imgur.com/2Jn7QHG.png",
+    src: "https://d1bail49udbz1k.cloudfront.net/out/v1/78e282e04f0944f3ad0aa1db7a1be645/index_3.m3u8",
+    type: "hls"
+  },
+  {
+    name: "IBC13",
+    logo: "https://i.imgur.com/Org4yTu.png",
+    src: "https://qp-pldt-live-bpk-01-prod.akamaized.net/bpk-tv/ibc13_sd_new/default1/index.mpd",
+    type: "mpd",
+    drm:{
+      keyId:"16ecd238c0394592b8d3559c06b1faf5",
+      key:"05b47ae3be1368912ebe28f87480fc84"
+    }
+  }, 
+  {
+  name:"ASIAN FOOD NETWORK",
+  logo:"https://i.imgur.com/O5jBcL2.png",
+  src:"https://qp-pldt-live-bpk-01-prod.akamaized.net/bpk-tv/asianfoodnetwork_sd/default/index.mpd",
+  type:"mpd",
+  drm:{
+    keyId:"1619db30b9ed42019abb760a0a3b5e7f",
+    key:"5921e47fb290ae263291b851c0b4b6e4"
+  }
+},  {
+    name: "FOOD NETWORK",
+    logo: "https://i.imgur.com/EXC1yRz.png",
+    src: "https://qp-pldt-live-bpk-02-prod.akamaized.net/bpk-tv/cg_foodnetwork_hd1/default/index.mpd",
+    type: "mpd",
+    drm:{
+      keyId:"4a9d2f7c1e6b4c8d8a55d7b1e3f0c926",
+      key:"2e62531bdb450480a18197b14f4ebc77"
+    }
+  },
+  {
+  name:"SDTV",
+  logo:"https://i.imgur.com/PfJ0jVP.png",
+  src:"https://live20.bozztv.com/giatvplayout7/giatv-210938/tracks-v1a1/mono.ts.m3u8",
+  type:"hls"
+  },
 
-/* BUILD LIST */
+ {
+    name: "LOTUS MACAU",
+    logo: "https://i.imgur.com/KIkQd8q.png",
+    src: "https://wandering-scene-0db6.ostamark484.workers.dev/",
+    type: "hls"
+  },
+
+{
+    name: "INC TV",
+    logo: "https://i.imgur.com/Kyf5KYg.png",
+    src: "https://243529.global.ssl.fastly.net/6842a712b68c56f675d988f1/live_f5ac22b0566511f0805217b960326aaa/tracks-v1/index.fmp4.m3u8",
+    type: "hls"
+  },
+{
+    name: "STAR MOVIES",
+    logo: "https://i.imgur.com/zLWw4TF.png",
+    src: "https://lucky-frost-d035.ostamark484.workers.dev",
+    type: "hls"
+  },
+{
+  name:"test2",
+  logo:"",
+  src:"https://dark-hall-e35d.san191990tos.workers.dev",
+  type:"mpd",
+  drm:{
+  keyId:"4a9d2f7c1e6b4c8d8a55d7b1e3f0c926",
+      key:"2e62531bdb450480a18197b14f4ebc77"
+  }
+}, {
+    name: "DISCOVERY ASIA",
+    logo: "https://i.imgur.com/SbiPKql.png",
+    src: "https://divine-waterfall-a92c.ostamark484.workers.dev/",
+    type: "hls"
+  },  {
+    name: "RESERVED",
+    logo: "",
+    src: "",
+    type: "mpd",
+    drm:{
+      keyId:"",
+      key:""
+    }
+  }, {
+    name: "RESERVED",
+    logo: "",
+    src: "",
+    type: "mpd",
+    drm:{
+      keyId:"",
+      key:""
+    }
+  },{
+    name: "RESERVED",
+    logo: "",
+    src: "",
+    drm:{
+      keyId:"",
+      key:""
+    }
+  }
+]; /* gamitin mo pa rin yung existing secondChannels array mo */ window.secondChannels || [];
+
+
+/* ========= BUILD ========= */
+
 function build(list, el){
   el.innerHTML="";
   list.forEach((ch,i)=>{
@@ -243,15 +528,14 @@ function build(list, el){
     row.className="channel";
 
     const img=document.createElement("img");
-    img.src=ch.logo || "https://via.placeholder.com/26x26?text=TV";
+    img.src=ch.logo || "https://via.placeholder.com/60x36";
 
     const sp=document.createElement("span");
-    sp.className = "chName";
-    sp.textContent = (i+1)+". " + ch.name;
+    sp.className="chName";
+    sp.textContent=(i+1)+". "+ch.name;
 
     row.appendChild(img);
     row.appendChild(sp);
-
     row.onclick=()=>playChannel(ch);
 
     el.appendChild(row);
@@ -266,98 +550,331 @@ window.addEventListener("load", () => {
   document.getElementById("panelMain").style.display = "block"; // affiliate TV nakikita agad
 });
 
-/* LAYOUT */
+
+/* ========= LAYOUT ========= */
+
 function updateLayout(){
-  const playerBox = document.getElementById("playerBox");
-  const buttons  = document.getElementById("buttonsBar");
-  const pMain    = document.getElementById("panelMain");
-  const pSecond  = document.getElementById("panelSecond");
   const ph = playerBox.offsetHeight;
-  const bh = buttons.offsetHeight;
-  buttons.style.top = ph+"px";
-  pMain.style.top   = (ph+bh)+"px";
-  pSecond.style.top = (ph+bh)+"px";
+  const bh = buttonsBar.offsetHeight;
+
+  buttonsBar.style.top = ph+"px";
+  panelMain.style.top  = (ph+bh)+"px";
+  panelSecond.style.top= (ph+bh)+"px";
 }
 window.addEventListener("load",updateLayout);
 window.addEventListener("resize",updateLayout);
 
-/* TOGGLE CHANNEL LIST */
+
+/* ========= LIST ========= */
+
 function toggleList(type){
-  const p1=document.getElementById("panelMain");
-  const p2=document.getElementById("panelSecond");
-  if(type==="main"){
-    p1.style.display = p1.style.display==="block"?"none":"block";
-    p2.style.display = "none";
-  }else{
-    p2.style.display = p2.style.display==="block"?"none":"block";
-    p1.style.display = "none";
+  panelMain.style.display = (type==="main")
+    ? (panelMain.style.display==="block"?"none":"block")
+    : "none";
+
+  panelSecond.style.display = (type==="second")
+    ? (panelSecond.style.display==="block"?"none":"block")
+    : "none";
+}
+
+
+/* ========= PLAYER ========= */
+
+function clearHls(){
+  if(hlsPlayer){
+    hlsPlayer.destroy();
+    hlsPlayer=null;
   }
 }
 
-/* PLAY CHANNEL */
-function clearHls(){ if(hlsPlayer){ hlsPlayer.destroy(); hlsPlayer=null; } }
-function showLoading(v){ loading.style.opacity = v ? 1 : 0; }
+function showLoading(v){
+  loading.style.opacity = v ? 1 : 0;
+}
 
-function playChannel(ch){
+async function playChannel(ch){
+
+  if(!ch.src) return;
+
   lastChannel = ch;
   showLoading(true);
   clearHls();
-  video.muted=false;
-  video.playbackRate=1.05;
 
+  try{ await player.unload(); }catch(e){}
+
+  video.muted = false;
+
+  /* ---------- DASH ---------- */
   if(ch.type==="mpd"){
+
     player.configure({
-      drm:{ clearKeys:{ [ch.drm.keyId]:ch.drm.key } },
-      streaming:{ bufferingGoal:6, rebufferingGoal:1 }
+      drm:{
+        clearKeys:{
+          [ch.drm.keyId]: ch.drm.key
+        }
+      },
+      streaming:{
+        bufferingGoal:25,
+        rebufferingGoal:5,
+        bufferBehind:30,
+        lowLatencyMode:false
+      }
     });
+
     player.load(ch.src).catch(retry);
   }
 
+  /* ---------- HLS ---------- */
   if(ch.type==="hls"){
+
     if(video.canPlayType("application/vnd.apple.mpegurl")){
       video.src = ch.src;
       video.play().catch(()=>{});
       return;
     }
+
     if(Hls.isSupported()){
-      hlsPlayer = new Hls({ autoStartLoad:true });
+      hlsPlayer = new Hls({
+        lowLatencyMode:false,
+        maxBufferLength:30,
+        maxLiveSyncPlaybackRate:1,
+        backBufferLength:30,
+        enableWorker:true
+      });
+
       hlsPlayer.attachMedia(video);
       hlsPlayer.loadSource(ch.src);
-      hlsPlayer.startLoad();
-      hlsPlayer.on(Hls.Events.MANIFEST_PARSED,()=>{ video.play().catch(()=>{}); });
+
+      hlsPlayer.on(Hls.Events.MANIFEST_PARSED,()=>{
+        video.play().catch(()=>{});
+      });
+
+      hlsPlayer.on(Hls.Events.ERROR,function(event,data){
+        if(data.fatal){
+          retry();
+        }
+      });
     }
   }
 }
 
-/* RETRY */
-function retry(){ if(!lastChannel) return; clearTimeout(retryTimer); retryTimer=setTimeout(()=>playChannel(lastChannel),3000); }
 
-/* VIDEO EVENTS */
+/* ========= RETRY ========= */
+
+function retry(){
+  if(!lastChannel) return;
+  clearTimeout(retryTimer);
+  retryTimer = setTimeout(()=>{
+    playChannel(lastChannel);
+  },4000);
+}
+
+
+/* ========= VIDEO EVENTS ========= */
+
 video.addEventListener("playing",()=>showLoading(false));
 video.addEventListener("canplay",()=>showLoading(false));
 video.addEventListener("waiting",()=>showLoading(true));
 video.addEventListener("stalled",retry);
 video.addEventListener("error",retry);
 
-/* FULLSCREEN BUTTON */
-fsBtn.addEventListener("click", (e)=>{
-  e.stopPropagation();
-  if(!document.fullscreenElement){ wrap.requestFullscreen?.(); } else { document.exitFullscreen?.(); }
-});
 
-/* FIT/WIDE/FULL BUTTONS */
-fitBtn.addEventListener("click",()=>video.style.objectFit="contain");
-wideBtn.addEventListener("click",()=>video.style.objectFit="100% auto");
-fsBtn.addEventListener("click",()=>video.style.objectFit="cover");
+/* ========= CONTROLS ========= */
 
-/* SHOW CONTROLS ON TAP */
+fitBtn.onclick  = ()=> video.style.objectFit="contain";
+wideBtn.onclick = ()=> video.style.objectFit="cover";
+
+fsBtn.onclick = ()=>{
+  if(!document.fullscreenElement){
+    wrap.requestFullscreen?.();
+  }else{
+    document.exitFullscreen?.();
+  }
+};
+
+
+/* tap overlay */
+
 let hideTimer=null;
-wrap.addEventListener("click", ()=>{
+wrap.addEventListener("click",()=>{
   controls.classList.add("show");
   clearTimeout(hideTimer);
-  hideTimer = setTimeout(()=>controls.classList.remove("show"), 2500);
+  hideTimer=setTimeout(()=>{
+    controls.classList.remove("show");
+  },2500);
+});
+
+</script>
+
+<script>
+/* ===============================
+   SAN MATEO CABLE USER CODE GATE
+   =============================== */
+
+/* SAMPLE USER CODES
+   (ikaw bahala magpalit)
+*/
+const SANMATEO_CODES = [
+  "SMC-2025-001",
+  "SMC-2025-002",
+  "SMC-2025-003"
+];
+
+const CODE_LIFE_DAYS = 30;
+
+function openSanMateoGate(){
+
+  if(isSanMateoUnlocked()){
+    toggleList('second');
+    return;
+  }
+
+  document.getElementById("codeOverlay").style.display="flex";
+  document.getElementById("codeErr").textContent="";
+  document.getElementById("userCodeInput").value="";
+}
+
+function submitUserCode(){
+
+  const code = document.getElementById("userCodeInput").value.trim();
+
+  if(!SANMATEO_CODES.includes(code)){
+    showCodeError("Invalid code");
+    return;
+  }
+
+  const used = localStorage.getItem("smc_used_"+code);
+  if(used){
+    showCodeError("Code already used on this device");
+    return;
+  }
+
+  const now = Date.now();
+  const exp = now + (CODE_LIFE_DAYS*24*60*60*1000);
+
+  localStorage.setItem("smc_session","1");
+  localStorage.setItem("smc_code",code);
+  localStorage.setItem("smc_exp",exp.toString());
+  localStorage.setItem("smc_used_"+code,"1");
+
+  closeGate();
+  toggleList('second');
+}
+
+function isSanMateoUnlocked(){
+
+  const s = localStorage.getItem("smc_session");
+  const exp = parseInt(localStorage.getItem("smc_exp") || "0",10);
+
+  if(!s) return false;
+
+  if(Date.now() > exp){
+    sanMateoLogout();
+    return false;
+  }
+
+  return true;
+}
+
+function sanMateoLogout(){
+  const c = localStorage.getItem("smc_code");
+  localStorage.removeItem("smc_session");
+  localStorage.removeItem("smc_exp");
+  localStorage.removeItem("smc_code");
+}
+
+function closeGate(){
+  document.getElementById("codeOverlay").style.display="none";
+}
+
+function showCodeError(msg){
+  document.getElementById("codeErr").textContent = msg;
+}
+
+/* auto logout kapag expired kahit naka refresh */
+window.addEventListener("load",()=>{
+  if(!isSanMateoUnlocked()){
+    sanMateoLogout();
+  }
+
+ 
 });
 </script>
 
+
+
+
+
+   <script>
+/* ============================
+   SIMPLE PAGE PROTECTION ONLY
+   (NO CHANGE TO YOUR PLAYER)
+   ============================ */
+
+/* PALITAN MO ITO NG DOMAIN MO */
+var ALLOWED_HOST = "onesanmateocable.pages.dev/";
+
+/* fake 404 kapag ibang website binuksan */
+if (location.hostname !== ALLOWED_HOST) {
+  document.open();
+  document.write(`
+<html>
+      <head><title>SAN MATEO CABLE AFFLIATE</title></head>
+      <body style="margin:0;background:#000;color:#fff;
+      display:absulute;align-items:center;justify-content:center;
+      height:100vh;font-family:Arial;text-align: center;  overflow:hidden;">
+     <center>   <P><h1>ENJOY WATCHING</h1></P>
+        <p>PUMILI LAMANG SA DALAWA LIST AFFLIATE TV OR SAN MATEO CABLE</p>
+        <p>PARA LUMABAS ANG MGA CHANNELS</p><br><br><br></center>
+        <img src="https://i.imgur.com/urWAPgv.png"  width="80" height="60">
+        <p><center><h4>     &copy;2025-26 GOLDEN TELEVISION NETWORK | <a href="#">All Rights Reserved</a></h4></center></p>
+      </body>
+    </html>
+
+  `);
+  document.close();
+}
+
+/* disable right click */
+document.addEventListener("contextmenu", function(e){
+  e.preventDefault();
+});
+
+/* block CTRL+U and CTRL+SHIFT+C */
+document.addEventListener("keydown", function(e){
+
+  /* CTRL + U */
+  if (e.ctrlKey && e.key.toLowerCase() === "u") {
+    e.preventDefault();
+    return false;
+  }
+
+  /* CTRL + SHIFT + C */
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+    e.preventDefault();
+    return false;
+  }
+
+});
+</script>
+
+
+<script disable-devtool-auto
+src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
+
+
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
