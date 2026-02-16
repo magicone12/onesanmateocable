@@ -12,8 +12,6 @@ body{
   background:#111;
   color:#fff;
   font-family:Arial, sans-serif;
-  overflow:none;
-   z-index:1000;
 }
 
 /* PLAYER */
@@ -67,7 +65,7 @@ video{
   cursor:pointer;
 }
 
-/* loading text */
+/* loading */
 .loading{
   position:absolute;
   inset:0;
@@ -75,7 +73,6 @@ video{
   align-items:center;
   justify-content:center;
   font-size:14px;
-  letter-spacing:.5px;
   background:rgba(0,0,0,.4);
   pointer-events:none;
   opacity:0;
@@ -96,7 +93,7 @@ video{
 
 .buttonsFixed button{
   flex:1;
-  padding:35px;
+  padding:30px;
   border:none;
   border-radius:8px;
   background:#2b2b2b;
@@ -118,43 +115,40 @@ video{
   max-height:60vh;
   overflow-y:auto;
 }
+
 .channelPanelFixed h3{
   margin:0 0 10px;
   text-align:center;
-  position: sticky;
-  top: 0;
-  z-index: 999;
+  position:sticky;
+  top:0;
   background:#00e1ff;
-  padding:25px 0;
+  color:#000;
+  padding:18px 0;
 }
-
-.chName{
-  flex:1;
-  text-align:center;
-  font-weight:500;
-}
-
-
 
 .channel{
   display:flex;
   align-items:center;
-  gap:8px;
-  padding:45px;
+  gap:12px;
+  padding:20px;
   margin-bottom:6px;
   background:#2b2b2b;
   border-radius:6px;
   cursor:pointer;
 }
-.channel:hover{background:#000000;}
 
 .channel img{
-  width:80px;
-  height:40px;
-  border-radius:4px;
+  width:60px;
+  height:36px;
+  object-fit:contain;
 }
 
-.spacer{height:1500px;}
+.chName{
+  flex:1;
+  text-align:center;
+}
+
+.spacer{height:1400px;}
 </style>
 </head>
 
@@ -162,12 +156,10 @@ video{
 
 <div class="playerFixed" id="playerBox">
   <div class="videoWrap" id="videoWrap">
-    <video id="video"
-      autoplay
-      muted
-      playsinline
-      poster="https://via.placeholder.com/1280x720?text=Select+a+Channel"></video>
+    <video id="video" autoplay playsinline></video>
+
     <div class="loading" id="loadingTxt">Loading channel…</div>
+
     <div class="controlsOverlay" id="controls">
       <button class="ctrlBtn" id="fsBtn">FULL</button>
       <button class="ctrlBtn" id="wideBtn">WIDE</button>
@@ -196,34 +188,40 @@ video{
 <script>
 shaka.polyfill.installAll();
 
-const video  = document.getElementById("video");
+const video   = document.getElementById("video");
 const loading = document.getElementById("loadingTxt");
+const wrap    = document.getElementById("videoWrap");
+
 const controls = document.getElementById("controls");
-const fsBtn = document.getElementById("fsBtn");
+const fsBtn   = document.getElementById("fsBtn");
 const wideBtn = document.getElementById("wideBtn");
-const fitBtn = document.getElementById("fitBtn");
-const wrap = document.getElementById("videoWrap");
+const fitBtn  = document.getElementById("fitBtn");
+
 const player = new shaka.Player(video);
 
 let hlsPlayer = null;
 let lastChannel = null;
 let retryTimer = null;
 
-/* CHANNELS */
+
+/* ========= CHANNELS ========= */
+
 const mainChannels = [
-{
-  name:"GOLDEN TV",
-  logo:"https://i.imgur.com/urWAPgv.png",
-  src:"https://long-hall-41fd.ostamark484.workers.dev",
-  type:"hls"
-},{
-  name:"SDTV",
-  logo:"https://i.imgur.com/PfJ0jVP.png",
-  src:"https://live20.bozztv.com/giatvplayout7/giatv-210938/tracks-v1a1/mono.ts.m3u8",
-  type:"hls"
-}
+  {
+    name:"GOLDEN TV",
+    logo:"https://i.imgur.com/urWAPgv.png",
+    src:"https://long-hall-41fd.ostamark484.workers.dev",
+    type:"hls"
+  },
+  {
+    name:"SDTV",
+    logo:"https://i.imgur.com/PfJ0jVP.png",
+    src:"https://live20.bozztv.com/giatvplayout7/giatv-210938/tracks-v1a1/mono.ts.m3u8",
+    type:"hls"
+  }
 ];
 
+/* (same list mo sa secondChannels – hindi ko ginalaw sources mo) */
 const secondChannels = [
  {
     name: "KAPAMILYA CHANNEL",
@@ -417,9 +415,11 @@ const secondChannels = [
       key:""
     }
   }
-];
+]; /* gamitin mo pa rin yung existing secondChannels array mo */ window.secondChannels || [];
 
-/* BUILD LIST */
+
+/* ========= BUILD ========= */
+
 function build(list, el){
   el.innerHTML="";
   list.forEach((ch,i)=>{
@@ -427,259 +427,197 @@ function build(list, el){
     row.className="channel";
 
     const img=document.createElement("img");
-    img.src=ch.logo || "https://via.placeholder.com/26x26?text=TV";
+    img.src=ch.logo || "https://via.placeholder.com/60x36";
 
     const sp=document.createElement("span");
-    sp.className = "chName";
-    sp.textContent = (i+1)+". " + ch.name;
+    sp.className="chName";
+    sp.textContent=(i+1)+". "+ch.name;
 
     row.appendChild(img);
     row.appendChild(sp);
-
     row.onclick=()=>playChannel(ch);
 
     el.appendChild(row);
   });
 }
 
-
 build(mainChannels, document.getElementById("mainList"));
 build(secondChannels, document.getElementById("secondList"));
 
-/* LAYOUT */
+
+/* ========= LAYOUT ========= */
+
 function updateLayout(){
-  const playerBox = document.getElementById("playerBox");
-  const buttons  = document.getElementById("buttonsBar");
-  const pMain    = document.getElementById("panelMain");
-  const pSecond  = document.getElementById("panelSecond");
   const ph = playerBox.offsetHeight;
-  const bh = buttons.offsetHeight;
-  buttons.style.top = ph+"px";
-  pMain.style.top   = (ph+bh)+"px";
-  pSecond.style.top = (ph+bh)+"px";
+  const bh = buttonsBar.offsetHeight;
+
+  buttonsBar.style.top = ph+"px";
+  panelMain.style.top  = (ph+bh)+"px";
+  panelSecond.style.top= (ph+bh)+"px";
 }
 window.addEventListener("load",updateLayout);
 window.addEventListener("resize",updateLayout);
 
-/* TOGGLE CHANNEL LIST */
+
+/* ========= LIST ========= */
+
 function toggleList(type){
-  const p1=document.getElementById("panelMain");
-  const p2=document.getElementById("panelSecond");
-  if(type==="main"){
-    p1.style.display = p1.style.display==="block"?"none":"block";
-    p2.style.display = "none";
-  }else{
-    p2.style.display = p2.style.display==="block"?"none":"block";
-    p1.style.display = "none";
+  panelMain.style.display = (type==="main")
+    ? (panelMain.style.display==="block"?"none":"block")
+    : "none";
+
+  panelSecond.style.display = (type==="second")
+    ? (panelSecond.style.display==="block"?"none":"block")
+    : "none";
+}
+
+
+/* ========= PLAYER ========= */
+
+function clearHls(){
+  if(hlsPlayer){
+    hlsPlayer.destroy();
+    hlsPlayer=null;
   }
 }
 
-/* PLAY CHANNEL */
-function clearHls(){ if(hlsPlayer){ hlsPlayer.destroy(); hlsPlayer=null; } }
-function showLoading(v){ loading.style.opacity = v ? 1 : 0; }
+function showLoading(v){
+  loading.style.opacity = v ? 1 : 0;
+}
 
-function playChannel(ch){
+async function playChannel(ch){
+
+  if(!ch.src) return;
+
   lastChannel = ch;
   showLoading(true);
   clearHls();
-  video.muted=false;
-  video.playbackRate=1.05;
 
+  try{ await player.unload(); }catch(e){}
+
+  video.muted = false;
+
+  /* ---------- DASH ---------- */
   if(ch.type==="mpd"){
+
     player.configure({
-      drm:{ clearKeys:{ [ch.drm.keyId]:ch.drm.key } },
-      streaming:{ bufferingGoal:6, rebufferingGoal:1 }
+      drm:{
+        clearKeys:{
+          [ch.drm.keyId]: ch.drm.key
+        }
+      },
+      streaming:{
+        bufferingGoal:25,
+        rebufferingGoal:5,
+        bufferBehind:30,
+        lowLatencyMode:false
+      }
     });
+
     player.load(ch.src).catch(retry);
   }
 
+  /* ---------- HLS ---------- */
   if(ch.type==="hls"){
+
     if(video.canPlayType("application/vnd.apple.mpegurl")){
       video.src = ch.src;
       video.play().catch(()=>{});
       return;
     }
+
     if(Hls.isSupported()){
       hlsPlayer = new Hls({
-        autoStartLoad:false,
-        startPosition:-1,
-        lowLatencyMode:true,
-        liveSyncDurationCount:1,
-        liveMaxLatencyDurationCount:3,
-        maxBufferLength:3,
-        backBufferLength:0,
-        abrEwmaFastLive:2,
-        abrEwmaSlowLive:5,
-        startFragPrefetch:true,
-        maxFragLookUpTolerance:0.1,
-        enableWorker:true,
-        capLevelToPlayerSize:true
+        lowLatencyMode:false,
+        maxBufferLength:30,
+        maxLiveSyncPlaybackRate:1,
+        backBufferLength:30,
+        enableWorker:true
       });
+
       hlsPlayer.attachMedia(video);
       hlsPlayer.loadSource(ch.src);
-      hlsPlayer.startLoad(-1);
-      hlsPlayer.on(Hls.Events.MANIFEST_PARSED,()=>{ video.play().catch(()=>{}); });
+
+      hlsPlayer.on(Hls.Events.MANIFEST_PARSED,()=>{
+        video.play().catch(()=>{});
+      });
+
+      hlsPlayer.on(Hls.Events.ERROR,function(event,data){
+        if(data.fatal){
+          retry();
+        }
+      });
     }
   }
 }
 
-/* RETRY */
-function retry(){ if(!lastChannel) return; clearTimeout(retryTimer); retryTimer=setTimeout(()=>playChannel(lastChannel),3000); }
 
-/* VIDEO EVENTS */
+/* ========= RETRY ========= */
+
+function retry(){
+  if(!lastChannel) return;
+  clearTimeout(retryTimer);
+  retryTimer = setTimeout(()=>{
+    playChannel(lastChannel);
+  },4000);
+}
+
+
+/* ========= VIDEO EVENTS ========= */
+
 video.addEventListener("playing",()=>showLoading(false));
 video.addEventListener("canplay",()=>showLoading(false));
 video.addEventListener("waiting",()=>showLoading(true));
 video.addEventListener("stalled",retry);
 video.addEventListener("error",retry);
 
-/* PULL SCREEN ON LANDSCAPE */
-function checkOrientation(){
-  const isLandscape = window.matchMedia("(orientation: landscape)").matches;
-  if(isLandscape){ video.style.objectFit = "cover"; } else { video.style.objectFit = "contain"; }
-}
-window.addEventListener("load", checkOrientation);
-window.addEventListener("resize", checkOrientation);
-window.addEventListener("orientationchange", checkOrientation);
 
-/* FULLSCREEN BUTTON */
-fsBtn.addEventListener("click", (e)=>{
-  e.stopPropagation();
-  if(!document.fullscreenElement){ wrap.requestFullscreen?.(); } else { document.exitFullscreen?.(); }
-});
+/* ========= CONTROLS ========= */
 
-/* FIT/WIDE/FULL BUTTONS */
-fitBtn.addEventListener("click",()=>video.style.objectFit="contain");
-wideBtn.addEventListener("click",()=>video.style.objectFit="100% auto");
-fsBtn.addEventListener("click",()=>video.style.objectFit="cover");
+fitBtn.onclick  = ()=> video.style.objectFit="contain";
+wideBtn.onclick = ()=> video.style.objectFit="cover";
 
-/* SHOW CONTROLS ON TAP */
+fsBtn.onclick = ()=>{
+  if(!document.fullscreenElement){
+    wrap.requestFullscreen?.();
+  }else{
+    document.exitFullscreen?.();
+  }
+};
+
+
+/* tap overlay */
+
 let hideTimer=null;
-wrap.addEventListener("click", ()=>{
+wrap.addEventListener("click",()=>{
   controls.classList.add("show");
   clearTimeout(hideTimer);
-  hideTimer = setTimeout(()=>controls.classList.remove("show"), 2500);
+  hideTimer=setTimeout(()=>{
+    controls.classList.remove("show");
+  },2500);
 });
-
-/* Ensure channel list visible on mobile */
-function updateChannelListDisplay(){
-  const p1=document.getElementById("panelMain");
-  const p2=document.getElementById("panelSecond");
-  if(lastChannel){ if(p1.style.display==="block" || p2.style.display==="block") return; p1.style.display="block"; p2.style.display="none"; }
-}
-window.addEventListener("resize", updateChannelListDisplay);
-window.addEventListener("load", updateChannelListDisplay);
 
 </script>
 
-  <script>
-/* ============================
-   SIMPLE PAGE PROTECTION ONLY
-   (NO CHANGE TO YOUR PLAYER)
-   ============================ */
+<!-- simple domain lock -->
+<script>
+var ALLOWED_HOST = "onesanmateocable.pages.dev";
 
-/* PALITAN MO ITO NG DOMAIN MO */
-var ALLOWED_HOST = "onesanmateocable.pages.dev/";
-
-/* fake 404 kapag ibang website binuksan */
-if (location.hostname !== ALLOWED_HOST) {
-  document.open();
-  document.write(`
-<html>
-      <head><title>SAN MATEO CABLE AFFLIATE</title></head>
-      <body style="margin:0;background:#000;color:#fff;
-      display:absulute;align-items:center;justify-content:center;
-      height:100vh;font-family:Arial;text-align: center;">
-     <center>   <P><h1>ENJOY WATCHING</h1></P>
-        <p>PUMILI LAMANG SA DALAWA LIST AFFLIATE TV OR SAN MATEO CABLE</p>
-        <p>PARA LUMABAS ANG MGA CHANNELS</p><br><br><br></center>
-        <img src="https://i.imgur.com/urWAPgv.png"  width="80" height="60">
-        <p><center><h4>     &copy;2025-26 GOLDEN TELEVISION NETWORK | <a href="#">All Rights Reserved</a></h4></center></p>
-      </body>
-    </html>
-
-  `);
-  document.close();
+if(location.hostname !== ALLOWED_HOST){
+  document.body.innerHTML = `
+  <div style="display:flex;align-items:center;justify-content:center;
+  height:100vh;background:#000;color:#fff;text-align:center;font-family:Arial">
+    <div>
+      <h1>ENJOY WATCHING</h1>
+      <p>PUMILI LAMANG SA AFFLIATE TV o SAN MATEO CABLE</p>
+      <img src="https://i.imgur.com/urWAPgv.png" width="80"><br><br>
+      <small>© 2025-26 GOLDEN TELEVISION NETWORK</small>
+    </div>
+  </div>`;
 }
-
-/* disable right click */
-document.addEventListener("contextmenu", function(e){
-  e.preventDefault();
-});
-
-/* block CTRL+U and CTRL+SHIFT+C */
-document.addEventListener("keydown", function(e){
-
-  /* CTRL + U */
-  if (e.ctrlKey && e.key.toLowerCase() === "u") {
-    e.preventDefault();
-    return false;
-  }
-
-  /* CTRL + SHIFT + C */
-  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
-    e.preventDefault();
-    return false;
-  }
-
-});
 </script>
 
-
-<script disable-devtool-auto
-src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
