@@ -61,25 +61,31 @@ overflow:hidden;
   color:#fff;
 }
   /* force fixed popup on phone */
+/* MOBILE FIXED POPUP */
 @media (max-width: 768px){
-
   #codeOverlay{
     position: fixed !important;
-    inset: 0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index:999999;
-    overflow:hidden;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%);
+    width: 300px !important;   /* fixed width */
+    max-width: 300px !important;
+    padding: 20px;
+    background: #1e1e1e;
+    border-radius: 12px;
+    z-index: 999999;
+    display: block !important;
   }
 
-  /* 👉 fixed size na ang ENTER CODE box */
   #codeBox{
-    width:280px !important;
-    max-width:280px !important;
+    width: 100% !important;
   }
 
+  body{
+    overflow: hidden;  /* para hindi mag-scroll habang nakabukas ang popup */
+  }
 }
+
 
 
 </style>
@@ -849,6 +855,7 @@ src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
 
 </body>
 </html>
+
 
 
 
