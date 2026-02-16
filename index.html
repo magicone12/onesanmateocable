@@ -170,7 +170,7 @@ video{
 
 <div class="buttonsFixed" id="buttonsBar">
   <button onclick="toggleList('main')">AFFLIATE TV</button>
- <button onclick="openSanMateo()">SAN MATEO CABLE</button>
+ <button onclick="openSanMateoGate()">SAN MATEO CABLE</button>
 </div>
 
 <div class="channelPanelFixed" id="panelMain">
@@ -599,117 +599,60 @@ wrap.addEventListener("click",()=>{
 
 </script>
 
-<!-- simple domain lock -->
-<script>
-var ALLOWED_HOST = "onesanmateocable.pages.dev";
-
-if(location.hostname !== ALLOWED_HOST){
-  document.body.innerHTML = `
-  <div style="display:flex;align-items:center;justify-content:center;
-  height:100vh;background:#000;color:#fff;text-align:center;font-family:Arial">
-    <div>
-      <h1>ENJOY WATCHING</h1>
-      <p>PUMILI LAMANG SA AFFLIATE TV o SAN MATEO CABLE</p>
-      <img src="https://i.imgur.com/urWAPgv.png" width="80"><br><br>
-      <small>© 2025-26 GOLDEN TELEVISION NETWORK</small>
-    </div>
-  </div>`;
+<style>
+#codeOverlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.75);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:99999;
 }
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
-
-<script>
-/* ===============================
-   SAN MATEO USER CODE SYSTEM
-   30 DAYS – ONE DEVICE ONLY
-   =============================== */
-
-const SAN_MATEO_CODES = [
-  "1234567890",
-  "SANMATEO-001",
-  "GOLDENVIP"
-];
-
-const LOGIN_KEY = "smc_login_data_v1";
-const USED_CODES_KEY = "smc_used_codes_v1";
-const EXPIRE_DAYS = 30;
-
-let sanMateoUnlocked = false;
-
-/* auto check kapag reload */
-(function autoCheckLogin(){
-
-  const data = JSON.parse(localStorage.getItem(LOGIN_KEY) || "null");
-
-  if(!data) return;
-
-  if(Date.now() > data.expire){
-    localStorage.removeItem(LOGIN_KEY);
-    sanMateoUnlocked = false;
-    return;
-  }
-
-  sanMateoUnlocked = true;
-
-})();
-
-
-function openSanMateo(){
-
-  if(sanMateoUnlocked){
-    toggleList("second");
-    return;
-  }
-
-  const code = prompt("ENTER YOUR SAN MATEO USER CODE");
-
-  if(!code) return;
-
-  const clean = code.trim();
-
-  if(!SAN_MATEO_CODES.includes(clean)){
-    alert("INVALID USER CODE");
-    return;
-  }
-
-  let used = JSON.parse(localStorage.getItem(USED_CODES_KEY) || "[]");
-
-  if(used.includes(clean)){
-    alert("THIS CODE IS ALREADY USED ON THIS DEVICE");
-    return;
-  }
-
-  const expire = Date.now() + (EXPIRE_DAYS * 24 * 60 * 60 * 1000);
-
-  localStorage.setItem(LOGIN_KEY, JSON.stringify({
-    code: clean,
-    expire: expire
-  }));
-
-  used.push(clean);
-  localStorage.setItem(USED_CODES_KEY, JSON.stringify(used));
-
-  sanMateoUnlocked = true;
-
-  alert("ACCESS GRANTED (VALID FOR 30 DAYS)");
-
-  toggleList("second");
+#codeBox{
+  background:#111;
+  border-radius:12px;
+  padding:20px;
+  width:280px;
+  text-align:center;
+  box-shadow:0 0 20px #000;
 }
+#codeBox h3{margin:0 0 10px;}
+#codeBox input{
+  width:100%;
+  padding:10px;
+  border-radius:6px;
+  border:none;
+  outline:none;
+  margin-bottom:10px;
+}
+#codeBox button{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:6px;
+  background:#00e1ff;
+  color:#000;
+  font-weight:bold;
+  cursor:pointer;
+}
+#codeErr{
+  color:#ff6b6b;
+  font-size:12px;
+  margin-top:8px;
+}
+</style>
 
+<div id="codeOverlay">
+  <div id="codeBox">
+    <h3>SAN MATEO CABLE</h3>
+    <p>Enter User Code</p>
+    <input id="userCodeInput" placeholder="Enter code">
+    <button onclick="submitUserCode()">UNLOCK</button>
+    <div id="codeErr"></div>
+  </div>
+</div>
 
-/* optional auto logout checker habang bukas ang page */
-setInterval(()=>{
-  const data = JSON.parse(localStorage.getItem(LOGIN_KEY) || "null");
-  if(!data) return;
-
-  if(Date.now() > data.expire){
-    localStorage.removeItem(LOGIN_KEY);
-    sanMateoUnlocked = false;
-    alert("SAN MATEO ACCESS EXPIRED");
-  }
-},60000);
-</script>
 
 
 
@@ -773,6 +716,7 @@ src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
 
 </body>
 </html>
+
 
 
 
