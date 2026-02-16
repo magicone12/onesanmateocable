@@ -6,6 +6,64 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.compiled.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
+
+
+<style>
+#codeOverlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.75);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:99999;
+}
+#codeBox{
+  background:#111;
+  border-radius:12px;
+  padding:20px;
+  width:280px;
+  text-align:center;
+  box-shadow:0 0 20px #000;
+}
+#codeBox h3{margin:0 0 10px;}
+#codeBox input{
+  width:100%;
+  padding:10px;
+  border-radius:6px;
+  border:none;
+  outline:none;
+  margin-bottom:10px;
+}
+#codeBox button{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:6px;
+  background:#00e1ff;
+  color:#000;
+  font-weight:bold;
+  cursor:pointer;
+}
+#codeErr{
+  color:#ff6b6b;
+  font-size:12px;
+  margin-top:8px;
+}
+</style>
+
+<div id="codeOverlay">
+  <div id="codeBox">
+    <h3>SAN MATEO CABLE</h3>
+    <p>Enter User Code</p>
+    <input id="userCodeInput" placeholder="Enter code">
+    <button onclick="submitUserCode()">UNLOCK</button>
+    <div id="codeErr"></div>
+  </div>
+</div>
+
+
+  
 <style>
 body{
   margin:0;
@@ -599,59 +657,99 @@ wrap.addEventListener("click",()=>{
 
 </script>
 
-<style>
-#codeOverlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.75);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:99999;
-}
-#codeBox{
-  background:#111;
-  border-radius:12px;
-  padding:20px;
-  width:280px;
-  text-align:center;
-  box-shadow:0 0 20px #000;
-}
-#codeBox h3{margin:0 0 10px;}
-#codeBox input{
-  width:100%;
-  padding:10px;
-  border-radius:6px;
-  border:none;
-  outline:none;
-  margin-bottom:10px;
-}
-#codeBox button{
-  width:100%;
-  padding:10px;
-  border:none;
-  border-radius:6px;
-  background:#00e1ff;
-  color:#000;
-  font-weight:bold;
-  cursor:pointer;
-}
-#codeErr{
-  color:#ff6b6b;
-  font-size:12px;
-  margin-top:8px;
-}
-</style>
+<script>
+/* ===============================
+   SAN MATEO CABLE USER CODE GATE
+   =============================== */
 
-<div id="codeOverlay">
-  <div id="codeBox">
-    <h3>SAN MATEO CABLE</h3>
-    <p>Enter User Code</p>
-    <input id="userCodeInput" placeholder="Enter code">
-    <button onclick="submitUserCode()">UNLOCK</button>
-    <div id="codeErr"></div>
-  </div>
-</div>
+/* SAMPLE USER CODES
+   (ikaw bahala magpalit)
+*/
+const SANMATEO_CODES = [
+  "SMC-2025-001",
+  "SMC-2025-002",
+  "SMC-2025-003"
+];
+
+const CODE_LIFE_DAYS = 30;
+
+function openSanMateoGate(){
+
+  if(isSanMateoUnlocked()){
+    toggleList('second');
+    return;
+  }
+
+  document.getElementById("codeOverlay").style.display="flex";
+  document.getElementById("codeErr").textContent="";
+  document.getElementById("userCodeInput").value="";
+}
+
+function submitUserCode(){
+
+  const code = document.getElementById("userCodeInput").value.trim();
+
+  if(!SANMATEO_CODES.includes(code)){
+    showCodeError("Invalid code");
+    return;
+  }
+
+  const used = localStorage.getItem("smc_used_"+code);
+  if(used){
+    showCodeError("Code already used on this device");
+    return;
+  }
+
+  const now = Date.now();
+  const exp = now + (CODE_LIFE_DAYS*24*60*60*1000);
+
+  localStorage.setItem("smc_session","1");
+  localStorage.setItem("smc_code",code);
+  localStorage.setItem("smc_exp",exp.toString());
+  localStorage.setItem("smc_used_"+code,"1");
+
+  closeGate();
+  toggleList('second');
+}
+
+function isSanMateoUnlocked(){
+
+  const s = localStorage.getItem("smc_session");
+  const exp = parseInt(localStorage.getItem("smc_exp") || "0",10);
+
+  if(!s) return false;
+
+  if(Date.now() > exp){
+    sanMateoLogout();
+    return false;
+  }
+
+  return true;
+}
+
+function sanMateoLogout(){
+  const c = localStorage.getItem("smc_code");
+  localStorage.removeItem("smc_session");
+  localStorage.removeItem("smc_exp");
+  localStorage.removeItem("smc_code");
+}
+
+function closeGate(){
+  document.getElementById("codeOverlay").style.display="none";
+}
+
+function showCodeError(msg){
+  document.getElementById("codeErr").textContent = msg;
+}
+
+/* auto logout kapag expired kahit naka refresh */
+window.addEventListener("load",()=>{
+  if(!isSanMateoUnlocked()){
+    sanMateoLogout();
+  }
+});
+</script>
+
 
 
 
@@ -716,6 +814,7 @@ src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
 
 </body>
 </html>
+
 
 
 
