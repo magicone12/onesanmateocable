@@ -89,9 +89,197 @@ video {
 <script>
 /* SAMPLE CHANNELS */
 const channels = [
-  { name:"Kapamilya Channel", stream:"https://dummy-stream-1.example/stream.m3u8" },
-  { name:"News Channel", stream:"https://dummy-stream-2.example/stream.m3u8" },
-  { name:"Sports", stream:"https://dummy-stream-3.example/stream.m3u8" }
+ {
+    name: "KAPAMILYA CHANNEL",
+    logo: "https://i.imgur.com/fRETRXx.png",
+    src: "https://cdn-ue1-prod.tsv2.amagi.tv/linear/amg01006-abs-cbn-kapcha-dash-abscbnono/54afaecb-9608-4827-a19a-e1a2d2f498d5/index.mpd",
+    type: "mpd",
+    drm:{
+      keyId:"2615129ef2c846a9bbd43a641c7303ef",
+      key:"07c7f996b1734ea288641a68e1cfdc4d"
+    }
+  },{
+  name:"A2Z",
+  logo:"https://i.imgur.com/43nZ2rv.png",
+  src:"https://qp-pldt-live-bpk-02-prod.akamaized.net/bpk-tv/cg_a2z/default/index.mpd",
+  type:"mpd",
+  drm:{
+    keyId:"3f6d8a2c1b7e4c9f8d52a7e1b0c6f93d",
+    key:"4019f9269b9054a2b9e257b114ebbaf2"
+  }
+},{
+  name:"PTV4",
+  logo:"https://i.imgur.com/Ktl7qZt.png",
+  src:"https://qp-pldt-live-bpk-01-prod.akamaized.net/bpk-tv/cg_ptv4_sd/default/index.mpd",
+  type:"mpd",
+  drm:{
+    keyId:"71a130a851b9484bb47141c8966fb4a3",
+    key:"ad1f003b4f0b31b75ea4593844435600"
+  }
+},{
+  name:"TV5",
+  logo:"https://i.imgur.com/Ddyfzrn.png",
+  src:"https://qp-pldt-live-bpk-02-prod.akamaized.net/bpk-tv/tv5_hd/default1/index.mpd",
+  type:"mpd",
+  drm:{
+    keyId:"2615129ef2c846a9bbd43a641c7303ef",
+    key:"07c7f996b1734ea288641a68e1cfdc4d"
+  }
+},  {
+    name: "GMA",
+    logo: "https://i.imgur.com/nMSt2j0.png",
+    src: "https://gsattv.akamaized.net/live/media0/gma7/Widevine/gma7.mpd",
+    type: "mpd",
+    drm:{
+      keyId:"2615129ef2c846a9bbd43a641c7303ef",
+      key:"07c7f996b1734ea288641a68e1cfdc4d"
+    }
+  },  {
+    name: "GTV",
+    logo: "https://i.imgur.com/txozMGM.png",
+    src: "https://kalibonco.qzz.io/001/2/ch00000090990000001143/manifest.mpd?AuthInfo=v87HD9rEhwHiAdYyrP20TsXah2%2FZLFNNIdWrVrXDMArwAtJC%2BsmBQ5ARU076BdkhsyK4TH4mOENKJ45mwOyS0g%3D%3D&version=v1.0&BreakPoint=0&virtualDomain=001.live_hls.zte.com&programid=ch00000000000000001313&contentid=ch00000000000000001313&videoid=ch00000090990000001143&recommendtype=0&userid=1430687738767&boid=001&stbid=02%3A00%3A00%3A00%3A00%3A00&terminalflag=1&profilecode=&usersessionid=VTF7PQ0PAOMXXX&NeedJITP=1&JITPMediaType=DASH&JITPDRMType=NO",
+    type: "mpd",
+    drm:{
+      keyId:"4a9d2f7c1e6b4c8d8a55d7b1e3f0c926",
+      key:"2e62531bdb450480a18197b14f4ebc77"
+    }
+  },  {
+    name: "ALL TV",
+    logo: "https://i.imgur.com/wo8vkU8.png",
+    src: "https://kalibonco.qzz.io/001/2/ch00000090990000001179/manifest.mpd?AuthInfo=v87HD9rEhwHiAdYyrP20TsXah2%2FZLFNNIdWrVrXDMAow35sHUcBhGBpxqddBGYEnsyK4TH4mOENKJ45mwOyS0g%3D%3D&virtualDomain=001.live_hls.zte.com&JITPMediaType=DASH&JITPDRMType=NO",
+    type: "mpd",
+    drm:{
+      keyId:"31363232353335323435353337353331",
+      key:"35416a68643065697575493337566135"
+    }
+  },  {
+    name: "HEART OF ASIA",
+    logo: "https://i.imgur.com/1bPpXUt.png",
+    src: "https://still-union-b4e1.ostamark484.workers.dev/",
+    type: "hls"
+  },
+  {
+    name: "I HEART MOVIES",
+    logo: "https://i.imgur.com/PALAEXx.jpeg",
+    src: "https://fancy-fog-9df8.ostamark484.workers.dev/",
+    type: "hls"
+  },{
+  name:"GOLDEN TV",
+  logo:"https://i.imgur.com/urWAPgv.png",
+  src:"https://long-hall-41fd.ostamark484.workers.dev",
+  type:"hls"
+},
+  {
+  name:"CINEMA ONE",
+  logo:"https://i.imgur.com/moSPpuJ.png",
+  src:"https://cdn-ue1-prod.tsv2.amagi.tv/linear/amg01006-abs-cbn-cinemaone-dash-abscbnono/index.mpd",
+  type:"mpd",
+  drm:{
+    keyId:"2615129ef2c846a9bbd43a641c7303ef",
+    key:"07c7f996b1734ea288641a68e1cfdc4d"
+  }
+}, 
+  {
+    name: "CINEMO!",
+    logo: "https://i.imgur.com/2Jn7QHG.png",
+    src: "https://d1bail49udbz1k.cloudfront.net/out/v1/78e282e04f0944f3ad0aa1db7a1be645/index_3.m3u8",
+    type: "hls"
+  },
+  {
+    name: "IBC13",
+    logo: "https://i.imgur.com/Org4yTu.png",
+    src: "https://qp-pldt-live-bpk-01-prod.akamaized.net/bpk-tv/ibc13_sd_new/default1/index.mpd",
+    type: "mpd",
+    drm:{
+      keyId:"16ecd238c0394592b8d3559c06b1faf5",
+      key:"05b47ae3be1368912ebe28f87480fc84"
+    }
+  }, 
+  {
+  name:"ASIAN FOOD NETWORK",
+  logo:"https://i.imgur.com/O5jBcL2.png",
+  src:"https://qp-pldt-live-bpk-01-prod.akamaized.net/bpk-tv/asianfoodnetwork_sd/default/index.mpd",
+  type:"mpd",
+  drm:{
+    keyId:"1619db30b9ed42019abb760a0a3b5e7f",
+    key:"5921e47fb290ae263291b851c0b4b6e4"
+  }
+},  {
+    name: "FOOD NETWORK",
+    logo: "https://i.imgur.com/EXC1yRz.png",
+    src: "https://qp-pldt-live-bpk-02-prod.akamaized.net/bpk-tv/cg_foodnetwork_hd1/default/index.mpd",
+    type: "mpd",
+    drm:{
+      keyId:"4a9d2f7c1e6b4c8d8a55d7b1e3f0c926",
+      key:"2e62531bdb450480a18197b14f4ebc77"
+    }
+  },
+  {
+  name:"SDTV",
+  logo:"https://i.imgur.com/PfJ0jVP.png",
+  src:"https://live20.bozztv.com/giatvplayout7/giatv-210938/tracks-v1a1/mono.ts.m3u8",
+  type:"hls"
+  },
+
+ {
+    name: "LOTUS MACAU",
+    logo: "https://i.imgur.com/KIkQd8q.png",
+    src: "https://wandering-scene-0db6.ostamark484.workers.dev/",
+    type: "hls"
+  },
+
+{
+    name: "INC TV",
+    logo: "https://i.imgur.com/Kyf5KYg.png",
+    src: "https://243529.global.ssl.fastly.net/6842a712b68c56f675d988f1/live_f5ac22b0566511f0805217b960326aaa/tracks-v1/index.fmp4.m3u8",
+    type: "hls"
+  },
+{
+    name: "STAR MOVIES",
+    logo: "https://i.imgur.com/zLWw4TF.png",
+    src: "https://lucky-frost-d035.ostamark484.workers.dev",
+    type: "hls"
+  },
+{
+  name:"test2",
+  logo:"",
+  src:"https://dark-hall-e35d.san191990tos.workers.dev",
+  type:"mpd",
+  drm:{
+  keyId:"4a9d2f7c1e6b4c8d8a55d7b1e3f0c926",
+      key:"2e62531bdb450480a18197b14f4ebc77"
+  }
+}, {
+    name: "DISCOVERY ASIA",
+    logo: "https://i.imgur.com/SbiPKql.png",
+    src: "https://divine-waterfall-a92c.ostamark484.workers.dev/",
+    type: "hls"
+  },  {
+    name: "RESERVED",
+    logo: "",
+    src: "",
+    type: "mpd",
+    drm:{
+      keyId:"",
+      key:""
+    }
+  }, {
+    name: "RESERVED",
+    logo: "",
+    src: "",
+    type: "mpd",
+    drm:{
+      keyId:"",
+      key:""
+    }
+  },{
+    name: "RESERVED",
+    logo: "",
+    src: "",
+    drm:{
+      keyId:"",
+      key:""
+    }
 ];
 
 /* BUILD CHANNEL LIST */
@@ -136,3 +324,4 @@ window.onload = ()=> playChannel(channels[0].stream);
 
 </body>
 </html>
+
