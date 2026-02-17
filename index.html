@@ -1,3 +1,6 @@
+GOOD SSCRIPT1
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -17,17 +20,14 @@
   align-items:center;
   justify-content:center;
   z-index:99999;
-   overflow:hidden;
 }
 #codeBox{
   background:#111;
   border-radius:12px;
   padding:20px;
-  width:250px;
+  width:280px;
   text-align:center;
   box-shadow:0 0 20px #000;
-  overflow:hidden;
-
 }
 #codeBox h3{margin:0 0 10px;}
 #codeBox input{
@@ -37,13 +37,10 @@
   border:none;
   outline:none;
   margin-bottom:10px;
-  overflow:hidden;
-overflow:hidden;
-    z-index:15;
 }
 #codeBox button{
   width:100%;
-  padding:10px;
+  padding:15px;
   border:none;
   border-radius:6px;
   background:#00e1ff;
@@ -61,34 +58,6 @@ overflow:hidden;
   background:#333;
   color:#fff;
 }
-  /* force fixed popup on phone */
-/* MOBILE FIXED POPUP */
-@media (max-width: 768px){
-  #codeOverlay{
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%);
-    width: 300px !important;   /* fixed width */
-    max-width: 300px !important;
-    padding: 20px;
-    background: #1e1e1e;
-    border-radius: 12px;
-    z-index: 999999;
-    display: block !important;
-  }
-
-  #codeBox{
-    width: 100% !important;
-  }
-
-  body{
-    overflow: hidden;  /* para hindi mag-scroll habang nakabukas ang popup */
-  }
-}
-
-
-
 </style>
 
 <div id="codeOverlay">
@@ -99,15 +68,6 @@ overflow:hidden;
    <button onclick="submitUserCode()">UNLOCK</button>
 <button class="cancelBtn" onclick="closeGate()">CANCEL</button>
     <div id="codeErr"></div>
-     <p><center>
-    <h6>
-      For assistance with your user code, please email GOLDEN TELEVISION NETWORK (GTN) at 
-      <a href="mailto:streamsolution223@gmail.com" style="color: rgb(0, 238, 255);">streamsolution223@gmail.com</a>. 
-      Thank you!
-    </h6>
-  </center></p>
-       <img src="https://i.imgur.com/urWAPgv.png"  width="40" height="15">
-    <p><center><h6>     &copy;2025-26 GOLDEN TELEVISION NETWORK | <a href="#">All Rights Reserved</a></h6></center></p>
   </div>
 </div>
 
@@ -551,11 +511,6 @@ function build(list, el){
 build(mainChannels, document.getElementById("mainList"));
 build(secondChannels, document.getElementById("secondList"));
 
-/* SHOW AFFILIATE CHANNELS ON LOAD */
-window.addEventListener("load", () => {
-  document.getElementById("panelMain").style.display = "block"; // affiliate TV nakikita agad
-});
-
 
 /* ========= LAYOUT ========= */
 
@@ -827,7 +782,7 @@ if (location.hostname !== ALLOWED_HOST) {
       <head><title>SAN MATEO CABLE AFFLIATE</title></head>
       <body style="margin:0;background:#000;color:#fff;
       display:absulute;align-items:center;justify-content:center;
-      height:100vh;font-family:Arial;text-align: center;  overflow:hidden;">
+      height:100vh;font-family:Arial;text-align: center;">
      <center>   <P><h1>ENJOY WATCHING</h1></P>
         <p>PUMILI LAMANG SA DALAWA LIST AFFLIATE TV OR SAN MATEO CABLE</p>
         <p>PARA LUMABAS ANG MGA CHANNELS</p><br><br><br></center>
@@ -870,22 +825,6 @@ src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
