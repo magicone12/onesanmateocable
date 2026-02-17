@@ -11,20 +11,18 @@
 body {
   margin:0;
   background:#000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  height:100vh;
   font-family:Arial,sans-serif;
+  overflow-x:hidden;
 }
 
-/* PLAYER WRAPPER - CENTERED */
+/* PLAYER WRAPPER - NAKA-ITAAS NG SCREEN */
 .playerWrapper {
   width:90%;
   max-width:1000px;
   aspect-ratio:16/9;
   position:relative;
   background:#000;
+  margin:20px auto 0 auto; /* nasa taas, may konting space */
 }
 
 video {
@@ -36,7 +34,7 @@ video {
   display:block;
 }
 
-/* CHANNEL PANEL SLIDE-IN */
+/* CHANNEL PANEL SLIDE-IN SA KANAN */
 .channelPanelFixed {
   position:fixed;
   top:0;
