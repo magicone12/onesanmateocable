@@ -260,6 +260,66 @@ video{
 }
 
 .spacer{height:1400px;}
+
+
+
+
+
+
+
+
+/* ===== FIXED PLAYER ===== */
+.playerFixed {
+  position: fixed !important;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 1000px;
+  z-index: 10000;
+  background: #000;
+  padding: 0;
+  border-radius: 10px;
+}
+
+.videoWrap {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ===== MOBILE FRIENDLY FIXED PLAYER ===== */
+@media (max-width: 768px) {
+  .playerFixed {
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 95%;         /* slightly smaller for mobile */
+    max-width: 500px;
+    z-index: 10000;
+    border-radius: 8px;
+  }
+
+  .videoWrap {
+    aspect-ratio: 16/9; /* maintain ratio */
+    width: 100%;
+  }
+
+  /* make sure channel buttons & lists visible below player */
+  .buttonsFixed, .channelPanelFixed {
+    margin-top: calc( (100vw * 9 / 16) + 20px ); /* player height + spacing */
+  }
+}
+
+
+
+
+
+
+
+  
 </style>
 </head>
 
@@ -874,6 +934,7 @@ src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
 
 </body>
 </html>
+
 
 
 
