@@ -15,49 +15,37 @@ body {
   font-family:Arial,sans-serif;
 }
 
-/* FULLSCREEN PLAYER */
-.playerWrapper {
-  position:fixed;
-  inset:0;
+/* FULLSCREEN VIDEO */
+video {
   width:100%;
   height:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#000;
-}
-
-video {
-  width:90%;
-  max-width:1000px;
-  height:90%;
-  object-fit:contain; /* FIT SCREEN */
+  object-fit:contain; /* fit screen without stretching */
   background:#000;
   cursor:pointer;
   display:block;
 }
 
-/* CHANNEL PANEL SLIDE-IN */
-.channelPanelFixed {
+/* CHANNEL PANEL OVERLAY */
+.channelPanelOverlay {
   position:fixed;
   top:0;
-  right:-100%;
+  right:-300px; /* hidden by default */
   width:300px;
   max-width:80%;
   height:100vh;
-  background:#1e1e1e;
+  background:rgba(30,30,30,0.95);
   padding:10px;
   z-index:1001;
   overflow-y:auto;
-  transition:right .3s ease-in-out;
-  box-shadow:-5px 0 15px rgba(0,0,0,.5);
+  transition:right 0.3s ease-in-out;
+  box-shadow:-5px 0 15px rgba(0,0,0,0.5);
 }
 
-.channelPanelFixed.show {
+.channelPanelOverlay.show {
   right:0;
 }
 
-.channelPanelFixed h3 {
+.channelPanelOverlay h3 {
   margin:0 0 10px;
   padding:15px 0;
   text-align:center;
@@ -89,11 +77,9 @@ video {
 </head>
 <body>
 
-<div class="playerWrapper" id="playerWrapper">
-  <video id="video" autoplay playsinline></video>
-</div>
+<video id="video" autoplay playsinline></video>
 
-<div class="channelPanelFixed" id="channelPanel">
+<div class="channelPanelOverlay" id="channelPanel">
   <h3>SAN MATEO CABLE</h3>
   <div id="channelList"></div>
 </div>
@@ -105,7 +91,7 @@ const player = new shaka.Player(video);
 let hlsPlayer=null;
 let lastChannel=null;
 
-/* SAN MATEO CABLE CHANNELS */
+/* CHANNEL PLAYLIST */
 const channels = [
   {name:"KAPAMILYA CHANNEL",logo:"https://i.imgur.com/fRETRXx.png",src:"https://cdn-ue1-prod.tsv2.amagi.tv/linear/amg01006-abs-cbn-kapcha-dash-abscbnono/54afaecb-9608-4827-a19a-e1a2d2f498d5/index.mpd",type:"mpd"},
   {name:"GOLDEN TV",logo:"https://i.imgur.com/urWAPgv.png",src:"https://long-hall-41fd.ostamark484.workers.dev",type:"hls"}
@@ -127,14 +113,14 @@ function buildList(){
 }
 buildList();
 
-/* TOGGLE PANEL */
+/* TOGGLE CHANNEL PANEL */
 const panel = document.getElementById("channelPanel");
 function togglePanel(show){
   if(show) panel.classList.add("show");
   else panel.classList.remove("show");
 }
 
-/* CLICK VIDEO TO SHOW/HIDE CHANNEL LIST */
+/* CLICK VIDEO TO TOGGLE PANEL */
 video.onclick = ()=> {
   panel.classList.toggle("show");
 }
@@ -162,12 +148,12 @@ async function playChannel(ch){
   }
 }
 
-/* AUTO FULLSCREEN & PLAY FIRST CHANNEL ON LOAD */
+/* AUTO FULLSCREEN & PLAY FIRST CHANNEL */
 window.onload = async ()=>{
   playChannel(channels[0]);
-  if (video.requestFullscreen) {
+  if(video.requestFullscreen){
     await video.requestFullscreen();
-  } else if (video.webkitRequestFullscreen) {
+  } else if(video.webkitRequestFullscreen){
     video.webkitRequestFullscreen();
   }
 };
