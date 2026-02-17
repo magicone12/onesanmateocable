@@ -38,7 +38,7 @@ body {
 video {
   width:100%;
   height:100%;
-  object-fit:contain; /* FIT SCREEN */
+  object-fit:contain;
   background:#000;
 }
 
@@ -80,35 +80,11 @@ video {
   transition:.2s;
 }
 
-/* BUTTONS */
-.buttonsFixed {
-  position:fixed;
-  top: calc(16/9*100vw + 10px);
-  left:0;
-  width:100%;
-  max-width:1000px;
-  margin:auto;
-  display:flex;
-  gap:10px;
-  padding:10px;
-  z-index:999;
-}
-
-.buttonsFixed button {
-  flex:1;
-  padding:15px;
-  border:none;
-  border-radius:8px;
-  background:#2b2b2b;
-  color:#fff;
-  cursor:pointer;
-}
-
-/* CHANNEL PANEL SLIDE-IN */
+/* CHANNEL PANEL */
 .channelPanelFixed {
   position:fixed;
   top:0;
-  right:-100%; /* hidden by default */
+  right:0;
   width:80%;
   max-width:350px;
   height:100vh;
@@ -116,12 +92,7 @@ video {
   padding:10px;
   z-index:1001;
   overflow-y:auto;
-  transition: right .3s ease-in-out;
   box-shadow: -5px 0 15px rgba(0,0,0,.5);
-}
-
-.channelPanelFixed.show {
-  right:0; /* slide in */
 }
 
 .channelPanelFixed h3 {
@@ -157,7 +128,6 @@ video {
 @media(max-width:768px){
   .playerFixed { width:95%; }
   .channelPanelFixed { width:90%; max-width:300px; }
-  .buttonsFixed { flex-direction:column; gap:8px; top: calc(95vw*9/16 + 10px);}
 }
 </style>
 </head>
@@ -175,19 +145,9 @@ video {
   </div>
 </div>
 
-<div class="buttonsFixed" id="buttonsBar">
-  <button onclick="toggleList('main')">AFFILIATE TV</button>
-  <button onclick="openSanMateoGate()">SAN MATEO CABLE</button>
-</div>
-
-<div class="channelPanelFixed" id="panelMain">
-  <h3>AFFILIATE TV</h3>
-  <div id="mainList"></div>
-</div>
-
-<div class="channelPanelFixed" id="panelSecond">
+<div class="channelPanelFixed" id="panelSanMateo">
   <h3>SAN MATEO CABLE</h3>
-  <div id="secondList"></div>
+  <div id="sanMateoList"></div>
 </div>
 
 <script>
@@ -197,16 +157,13 @@ const player = new shaka.Player(video);
 let hlsPlayer=null;
 let lastChannel=null;
 
-/* SAMPLE CHANNELS */
-const mainChannels = [
-  {name:"GOLDEN TV",logo:"https://i.imgur.com/urWAPgv.png",src:"https://long-hall-41fd.ostamark484.workers.dev",type:"hls"},
-  {name:"SDTV",logo:"https://i.imgur.com/PfJ0jVP.png",src:"https://live20.bozztv.com/giatvplayout7/giatv-210938/tracks-v1a1/mono.ts.m3u8",type:"hls"}
-];
-const secondChannels = [
-  {name:"KAPAMILYA CHANNEL",logo:"https://i.imgur.com/fRETRXx.png",src:"https://cdn-ue1-prod.tsv2.amagi.tv/linear/amg01006-abs-cbn-kapcha-dash-abscbnono/54afaecb-9608-4827-a19a-e1a2d2f498d5/index.mpd",type:"mpd"}
+/* SAN MATEO CABLE CHANNELS */
+const sanMateoChannels = [
+  {name:"KAPAMILYA CHANNEL",logo:"https://i.imgur.com/fRETRXx.png",src:"https://cdn-ue1-prod.tsv2.amagi.tv/linear/amg01006-abs-cbn-kapcha-dash-abscbnono/54afaecb-9608-4827-a19a-e1a2d2f498d5/index.mpd",type:"mpd"},
+  {name:"SOME OTHER CHANNEL",logo:"https://i.imgur.com/placeholder.png",src:"https://example.com/stream.m3u8",type:"hls"}
 ];
 
-/* BUILD CHANNEL LISTS */
+/* BUILD CHANNEL LIST */
 function build(list, el){
   el.innerHTML="";
   list.forEach((ch,i)=>{
@@ -219,18 +176,9 @@ function build(list, el){
     el.appendChild(row);
   });
 }
-build(mainChannels, document.getElementById("mainList"));
-build(secondChannels, document.getElementById("secondList"));
+build(sanMateoChannels, document.getElementById("sanMateoList"));
 
-/* ===== TOGGLE LIST ===== */
-function toggleList(type){
-  const panelMain=document.getElementById("panelMain");
-  const panelSecond=document.getElementById("panelSecond");
-  if(type==="main") panelMain.classList.toggle("show"), panelSecond.classList.remove("show");
-  if(type==="second") panelSecond.classList.toggle("show"), panelMain.classList.remove("show");
-}
-
-/* ===== PLAYER CONTROLS ===== */
+/* PLAYER CONTROLS */
 document.getElementById("fitBtn").onclick  = ()=> video.style.objectFit="contain";
 document.getElementById("wideBtn").onclick = ()=> video.style.objectFit="cover";
 document.getElementById("fsBtn").onclick   = ()=> {
@@ -238,7 +186,7 @@ document.getElementById("fsBtn").onclick   = ()=> {
   else document.exitFullscreen?.();
 }
 
-/* ===== PLAY CHANNEL ===== */
+/* PLAY CHANNEL */
 async function playChannel(ch){
   if(!ch.src) return;
   lastChannel=ch;
