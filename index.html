@@ -11,24 +11,29 @@
 body {
   margin:0;
   background:#000;
-  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
   font-family:Arial,sans-serif;
 }
 
-.playerFixed {
-  position:fixed;
-  inset:0;
-  width:100%;
-  height:100%;
+/* PLAYER WRAPPER - CENTERED */
+.playerWrapper {
+  width:90%;
+  max-width:1000px;
+  aspect-ratio:16/9;
+  position:relative;
   background:#000;
 }
 
 video {
   width:100%;
   height:100%;
-  object-fit:cover;
+  object-fit:contain; /* FIT SCREEN */
   background:#000;
   cursor:pointer;
+  display:block;
 }
 
 /* CHANNEL PANEL SLIDE-IN */
@@ -83,7 +88,7 @@ video {
 </head>
 <body>
 
-<div class="playerFixed" id="playerBox">
+<div class="playerWrapper" id="playerWrapper">
   <video id="video" autoplay playsinline></video>
 </div>
 
@@ -156,9 +161,8 @@ async function playChannel(ch){
   }
 }
 
-/* AUTO FULLSCREEN ON LOAD */
-window.onload = ()=>{
-  video.requestFullscreen?.().catch(()=>{});
+/* AUTO PLAY FIRST CHANNEL */
+window.onload = ()=> {
   playChannel(channels[0]);
 }
 </script>
