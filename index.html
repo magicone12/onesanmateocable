@@ -511,7 +511,10 @@ function build(list, el){
 build(mainChannels, document.getElementById("mainList"));
 build(secondChannels, document.getElementById("secondList"));
 
-
+/* SHOW AFFILIATE CHANNELS ON LOAD */
+window.addEventListener("load", () => {
+  document.getElementById("panelMain").style.display = "block"; // affiliate TV nakikita agad
+});
 /* ========= LAYOUT ========= */
 
 function updateLayout(){
@@ -825,6 +828,7 @@ src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
 
 </body>
 </html>
+
 
 
 
